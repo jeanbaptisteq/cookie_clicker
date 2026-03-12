@@ -27,17 +27,20 @@ const BUILDINGS = [
 
 // Cat evolution visuals:
 // The game keeps the highest unlocked visual (based on owned building qty >= 1).
-const CAT_BASE_IMAGE = 'assets/images/cat-base.png';
+// Add a revision suffix to bypass stale browser cache when images are replaced.
+const IMAGE_ASSET_REV = '20260313-1';
+const imgAsset = (name) => `assets/images/${name}?v=${IMAGE_ASSET_REV}`;
+const CAT_BASE_IMAGE = imgAsset('cat-base.png');
 const CAT_EVOLUTIONS = [
-  { buildingId: 1, image: 'assets/images/chaton-curieux.png' },
-  { buildingId: 2, image: 'assets/images/champ-de-cataire.png' },
-  { buildingId: 3, image: 'assets/images/griffoir-magique.png' },
-  { buildingId: 4, image: 'assets/images/tour-a-chats.png' },
-  { buildingId: 5, image: 'assets/images/cafe-des-matous.png' },
-  { buildingId: 6, image: 'assets/images/temple-félin.png' },
-  { buildingId: 7, image: 'assets/images/chat-sorcier.png' },
-  { buildingId: 8, image: 'assets/images/chat-de-l\'espace.png' },
-  { buildingId: 9, image: 'assets/images/chaton-quantique.png' },
+  { buildingId: 1, image: imgAsset('chaton-curieux.png') },
+  { buildingId: 2, image: imgAsset('champ-de-cataire.png') },
+  { buildingId: 3, image: imgAsset('griffoir-magique.png') },
+  { buildingId: 4, image: imgAsset('tour-a-chats.png') },
+  { buildingId: 5, image: imgAsset('cafe-des-matous.png') },
+  { buildingId: 6, image: imgAsset('temple-félin.png') },
+  { buildingId: 7, image: imgAsset('chat-sorcier.png') },
+  { buildingId: 8, image: imgAsset('chat-de-l\'espace.png') },
+  { buildingId: 9, image: imgAsset('chaton-quantique.png') },
 ];
 const CAT_BG_THEMES = {
   0: {
@@ -137,16 +140,31 @@ const CAT_BG_THEMES = {
     '--theme-bonus-stripe-b': '#65559f',
   },
   8: {
-    '--theme-body-glow-1': 'rgba(106,152,255,0.23)',
-    '--theme-body-glow-2': 'rgba(106,255,243,0.20)',
-    '--theme-body-stripe-a': '#0c1d40',
-    '--theme-body-stripe-b': '#123160',
-    '--theme-panel-stripe-a': '#184278',
-    '--theme-panel-stripe-b': '#21579a',
-    '--theme-header-stripe-a': '#2b6bb8',
-    '--theme-header-stripe-b': '#3b82d2',
-    '--theme-bonus-stripe-a': '#20508f',
-    '--theme-bonus-stripe-b': '#2f69ae',
+    '--theme-space-overlay-opacity': '0.95',
+    '--theme-space-layer': `radial-gradient(circle at 10% 14%, rgba(255,255,255,0.98) 0 1.2px, transparent 1.7px),
+      radial-gradient(circle at 28% 8%, rgba(210,228,255,0.95) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 47% 13%, rgba(255,255,255,0.94) 0 1.1px, transparent 1.8px),
+      radial-gradient(circle at 66% 9%, rgba(196,220,255,0.92) 0 1.1px, transparent 1.7px),
+      radial-gradient(circle at 84% 15%, rgba(255,255,255,0.96) 0 1.2px, transparent 1.8px),
+      radial-gradient(circle at 92% 28%, rgba(255,255,255,0.88) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 20% 74%, rgba(255,255,255,0.9) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 40% 82%, rgba(217,236,255,0.88) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 62% 78%, rgba(255,255,255,0.92) 0 1.1px, transparent 1.7px),
+      radial-gradient(circle at 80% 70%, rgba(210,230,255,0.9) 0 1px, transparent 1.6px),
+      radial-gradient(ellipse 78% 34% at 50% 48%, rgba(165,214,255,0.23), transparent 66%),
+      radial-gradient(ellipse 42% 22% at 36% 44%, rgba(194,124,255,0.14), transparent 72%),
+      radial-gradient(ellipse 38% 20% at 64% 56%, rgba(120,187,255,0.15), transparent 72%),
+      linear-gradient(150deg, rgba(3,5,13,0.98), rgba(6,10,24,0.97) 44%, rgba(2,4,10,0.99))`,
+    '--theme-body-glow-1': 'rgba(41,58,120,0.10)',
+    '--theme-body-glow-2': 'rgba(83,110,209,0.09)',
+    '--theme-body-stripe-a': '#030510',
+    '--theme-body-stripe-b': '#060a1a',
+    '--theme-panel-stripe-a': '#0a1228',
+    '--theme-panel-stripe-b': '#111d38',
+    '--theme-header-stripe-a': '#14264b',
+    '--theme-header-stripe-b': '#1d3566',
+    '--theme-bonus-stripe-a': '#102243',
+    '--theme-bonus-stripe-b': '#18325f',
   },
   9: {
     '--theme-body-glow-1': 'rgba(114,255,195,0.23)',
@@ -208,6 +226,8 @@ function applyCatTheme(stage) {
   if (stage === lastAppliedThemeStage) return;
   const rootStyle = document.documentElement.style;
   const theme = CAT_BG_THEMES[stage] || CAT_BG_THEMES[0];
+  rootStyle.setProperty('--theme-space-layer', 'linear-gradient(0deg, transparent, transparent)');
+  rootStyle.setProperty('--theme-space-overlay-opacity', '0');
   Object.entries(theme).forEach(([name, value]) => rootStyle.setProperty(name, value));
   lastAppliedThemeStage = stage;
 }

@@ -13,6 +13,22 @@
       --text-light:   #8A5A2A;
       --disabled:     #C8B09A;
       --white:        #ffffff;
+      --theme-space-layer: linear-gradient(0deg, transparent, transparent);
+      --theme-space-overlay-opacity: 0;
+      --theme-space-overlay:
+        radial-gradient(circle at 8% 12%, rgba(255,255,255,0.95) 0 1.2px, transparent 1.8px),
+        radial-gradient(circle at 21% 18%, rgba(212,230,255,0.9) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 35% 9%, rgba(255,255,255,0.92) 0 1.1px, transparent 1.7px),
+        radial-gradient(circle at 52% 14%, rgba(215,233,255,0.9) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 71% 11%, rgba(255,255,255,0.95) 0 1.2px, transparent 1.8px),
+        radial-gradient(circle at 84% 20%, rgba(219,236,255,0.9) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 93% 8%, rgba(255,255,255,0.92) 0 1.1px, transparent 1.7px),
+        radial-gradient(circle at 14% 72%, rgba(255,255,255,0.9) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 33% 84%, rgba(225,238,255,0.88) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 58% 76%, rgba(255,255,255,0.92) 0 1.1px, transparent 1.7px),
+        radial-gradient(circle at 77% 86%, rgba(217,235,255,0.88) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 90% 72%, rgba(255,255,255,0.9) 0 1px, transparent 1.6px),
+        radial-gradient(ellipse 55% 26% at 50% 48%, rgba(163,214,255,0.22), transparent 70%);
       --theme-body-glow-1: rgba(120,180,255,0.14);
       --theme-body-glow-2: rgba(89,122,200,0.14);
       --theme-body-stripe-a: #0b2a4a;
@@ -757,6 +773,7 @@
     /* ===== Cookie Clicker-inspired 3-column override ===== */
     body {
       background:
+        var(--theme-space-layer),
         radial-gradient(circle at 20% 20%, var(--theme-body-glow-1), transparent 48%),
         radial-gradient(circle at 80% 85%, var(--theme-body-glow-2), transparent 45%),
         repeating-linear-gradient(
@@ -775,13 +792,29 @@
       grid-template-columns: minmax(280px, 26vw) minmax(420px, 1fr) minmax(320px, 27vw);
       height: 100vh;
       gap: 0;
+      position: relative;
+      isolation: isolate;
+    }
+
+    #app::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: var(--theme-space-overlay-opacity);
+      background: var(--theme-space-overlay);
+      transition: opacity 0.35s ease;
     }
 
     #left-panel, #center-panel, #right-panel {
+      position: relative;
+      z-index: 1;
       border: 6px solid #4f2c17;
       border-top-width: 8px;
       border-bottom-width: 8px;
       background:
+        var(--theme-space-layer),
         linear-gradient(180deg, rgba(245,253,255,0.06), rgba(55,97,158,0.04)),
         repeating-linear-gradient(
           90deg,
