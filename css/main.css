@@ -266,6 +266,8 @@
       border-radius: 14px;
       padding: 11px 14px;
       box-shadow: 0 2px 10px rgba(232,132,92,0.08);
+      position: relative;
+      z-index: 20;
     }
     #stat-mini-cookies {
       font-size: 1.15em;
@@ -827,7 +829,7 @@
     }
     #paws-orbit {
       position: absolute;
-      inset: -10%;
+      inset: -6%;
       z-index: 2;
       pointer-events: none;
     }
@@ -850,6 +852,10 @@
       opacity: 0.97;
       user-select: none;
     }
+    #paws-orbit.paws-dense .paw-cursor {
+      filter: none;
+      opacity: 0.9;
+    }
     .paw-cursor::before {
       content: '';
       position: absolute;
@@ -864,8 +870,14 @@
       transform: rotate(var(--inner-tilt));
       transform-origin: center;
     }
+    #paws-orbit.paws-dense .paw-cursor::before {
+      filter: none;
+    }
     .paw-cursor.paw-click {
       animation: pawTap 0.22s ease-out;
+    }
+    #paws-orbit.paws-dense .paw-cursor.paw-click {
+      animation: none;
     }
     @keyframes pawTap {
       0% {
@@ -894,13 +906,13 @@
       }
     }
     #cat-glow {
-      width: 84%;
-      height: 84%;
+      width: 68%;
+      height: 68%;
       background: radial-gradient(circle, rgba(214,243,255,0.55) 0%, rgba(126,180,255,0.3) 52%, transparent 72%);
     }
     #cat-btn {
-      width: 82%;
-      height: 82%;
+      width: 64%;
+      height: 64%;
       z-index: 3;
       filter: drop-shadow(0 8px 30px rgba(137,198,255,0.32));
     }

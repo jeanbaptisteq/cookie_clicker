@@ -39,6 +39,7 @@ const CAT_EVOLUTIONS = [
 let lastValidCatImage = CAT_BASE_IMAGE;
 let pawClickCarry = 0;
 let pawOrbitCount = -1;
+let lastPawAnimTs = 0;
 let selectedBuyAmount = 1;
 
 function setupCatImageFallback() {
@@ -77,38 +78,44 @@ function renderCatEvolution() {
 function getPawOrbitCount() {
   const qty = G.bld[0]?.qty || 0;
   if (qty <= 0) return 0;
-  return Math.min(qty, 120);
+  // Keep rendering cost bounded while still allowing a dense Cookie Clicker-like fill.
+  return Math.min(qty, 900);
 }
 
 function getPawOrbitLayout(count, orbitSize) {
   if (count <= 0) return [];
 
-  const ringOneRadius = orbitSize * 0.33;
-  const ringTwoRadius = orbitSize * 0.46;
-  const ringOneCount = count <= 60 ? count : 60;
-  const ringTwoCount = count > 60 ? count - 60 : 0;
-  const ringOneSize = count <= 24 ? 28 : count <= 60 ? 24 : 21;
-  const ringTwoSize = 18;
   const result = [];
+  let remaining = count;
+  let ring = 0;
 
-  for (let i = 0; i < ringOneCount; i++) {
-    result.push({
-      ring: 1,
-      idx: i,
-      ringCount: ringOneCount,
-      radius: ringOneRadius,
-      size: ringOneSize,
-    });
-  }
+  const minStep = 8;
+  const innerRadius = orbitSize * 0.3;
+  const ringGap = Math.max(8, Math.min(14, orbitSize * 0.035));
+  const startAngle = 225; // bottom-left; next slots progress clockwise
 
-  for (let i = 0; i < ringTwoCount; i++) {
-    result.push({
-      ring: 2,
-      idx: i,
-      ringCount: ringTwoCount,
-      radius: ringTwoRadius,
-      size: ringTwoSize,
-    });
+  while (remaining > 0 && ring < 24) {
+    const radius = innerRadius + ring * ringGap;
+    const size = Math.max(10, Math.round(20 - ring * 0.55));
+    const spacing = Math.max(minStep, size * 0.78);
+
+    // Fixed slot count per ring so existing cursors keep their positions as new ones are added.
+    const circumference = 2 * Math.PI * radius;
+    const capacity = Math.max(1, Math.floor(circumference / spacing));
+    const ringCount = Math.min(remaining, capacity);
+    const angleStep = 360 / capacity;
+
+    for (let i = 0; i < ringCount; i++) {
+      result.push({
+        ring: ring + 1,
+        angle: startAngle + i * angleStep,
+        radius,
+        size,
+      });
+    }
+
+    remaining -= ringCount;
+    ring += 1;
   }
 
   return result;
@@ -118,6 +125,7 @@ function renderPawOrbit() {
   const orbit = document.getElementById('paws-orbit');
   if (!orbit) return;
   const count = getPawOrbitCount();
+  orbit.classList.toggle('paws-dense', count >= 220);
   if (count === pawOrbitCount) return;
 
   pawOrbitCount = count;
@@ -130,12 +138,12 @@ function renderPawOrbit() {
     const paw = document.createElement('div');
     paw.className = 'paw-cursor';
     paw.dataset.ring = String(cfg.ring);
-    paw.style.setProperty('--ang', `${(360 / cfg.ringCount) * cfg.idx}deg`);
+    paw.style.setProperty('--ang', `${cfg.angle}deg`);
     paw.style.setProperty('--rad', `${cfg.radius}px`);
     paw.style.setProperty('--size', `${cfg.size}px`);
-    paw.style.setProperty('--inner-tilt', `${cfg.ring === 1 ? 0 : 8}deg`);
-    paw.style.setProperty('--tap-shift', `${cfg.ring === 1 ? 9 : 7}px`);
-    paw.style.setProperty('--tap-scale', `${cfg.ring === 1 ? 1.16 : 1.13}`);
+    paw.style.setProperty('--inner-tilt', `${Math.min(10, cfg.ring * 0.85)}deg`);
+    paw.style.setProperty('--tap-shift', `${Math.max(4, 9 - cfg.ring * 0.3)}px`);
+    paw.style.setProperty('--tap-scale', `${Math.max(1.08, 1.16 - cfg.ring * 0.012)}`);
     orbit.appendChild(paw);
   });
 }
@@ -143,6 +151,13 @@ function renderPawOrbit() {
 function triggerPawAutoClickAnimation() {
   const orbit = document.getElementById('paws-orbit');
   if (!orbit) return;
+  if (pawOrbitCount >= 220) return;
+
+  const now = performance.now();
+  const minInterval = pawOrbitCount >= 120 ? 180 : pawOrbitCount >= 70 ? 120 : 70;
+  if (now - lastPawAnimTs < minInterval) return;
+  lastPawAnimTs = now;
+
   const paws = orbit.querySelectorAll('.paw-cursor');
   if (paws.length === 0) return;
 

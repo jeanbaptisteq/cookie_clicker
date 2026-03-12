@@ -136,3 +136,31 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
   - Vérification visuelle Playwright MCP sur `http://127.0.0.1:8000`: `???` et silhouettes noires visibles en boutique sur les items lockés.
   - Screenshot de vérification généré via MCP (temp path Playwright).
   - Run du client skill `web_game_playwright_client.js` effectué; même limitation déjà connue sur le clic `#cat-btn` (élément animé non stable), mais état/screenshot produits (`output/web-game/state-0.json`, `output/web-game/shot-0.png`).
+- Refonte des clickers orbitaux (inspiration Cookie Clicker) demandée:
+  - Passage à un layout en anneaux dynamiques via arcs successifs autour du chat (`getPawOrbitLayout`).
+  - Chaque anneau se remplit avant de passer au suivant (rayon supérieur), avec ouverture d'arc qui augmente progressivement jusqu'au cercle complet.
+  - Cap de rendu augmenté à 900 pattes pour permettre un remplissage dense de la zone gauche à haut niveau.
+  - Ajustement visuel du panneau gauche pour ce rendu:
+    - chat réduit (64%) pour laisser de l'espace aux anneaux,
+    - glow réduit,
+    - zone orbitale recentrée (`#paws-orbit` inset `-6%`).
+- Validation visuelle Playwright MCP:
+  - qty=20: premier arc autour du chat.
+  - qty=180: plusieurs anneaux en progression.
+  - qty=700: remplissage dense de la zone gauche autour du chat, proche du rendu de référence.
+  - captures temporaires générées via Playwright MCP (voir paths `.../playwright-mcp-output/...`).
+- Optimisation demandée pour fortes quantités de pattes:
+  - Désactivation des animations de tap à haute densité (`>=220`) via garde dans `triggerPawAutoClickAnimation` + throttle en-dessous.
+  - Mode CSS dense (`#paws-orbit.paws-dense`) sans filtres coûteux et sans animation `paw-click`.
+- Correction du haut de l'orbite:
+  - Passage automatique en cercles complets dès densité élevée (`count >= 140`) pour éviter le manque de curseurs en partie supérieure.
+  - Pas angulaire ajusté pour les cercles complets (`360 / ringCount`) afin d'éviter le trou de jonction.
+- Validation visuelle:
+  - qty=700: anneaux complets autour du chat, partie supérieure couverte, rendu dense stable.
+- Amélioration demandée du mode d'ajout des curseurs:
+  - Suppression du repositionnement proportionnel à chaque achat.
+  - Nouveau comportement: remplissage incrémental slot-par-slot, dans le sens horaire, avec capacité fixe par anneau.
+  - Chaque nouveau curseur prend le slot suivant sur l'anneau courant; puis démarre l'anneau suivant une fois l'anneau courant plein.
+  - Point de départ fixé en bas-gauche (`startAngle=225`), progression horaire continue.
+- Validation visuelle:
+  - qty=25: anneau en cours de complétion visible, ajout progressif sans redistribuer les anciens.
