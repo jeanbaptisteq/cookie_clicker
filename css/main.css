@@ -1053,7 +1053,7 @@
         overflow: hidden;
       }
       #app {
-        grid-template-columns: minmax(240px, 26vw) minmax(360px, 1fr) minmax(260px, 28vw);
+        grid-template-columns: minmax(180px, 25vw) minmax(320px, 1fr) minmax(180px, 27vw);
         height: 100vh;
         min-height: 100vh;
         overflow: hidden;
@@ -1066,15 +1066,15 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
       #cat-wrap {
-        width: min(22vw, 280px);
-        height: min(22vw, 280px);
+        width: min(20vw, 240px);
+        height: min(20vw, 240px);
       }
       #buildings-list {
         max-height: none;
       }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 760px) {
       html, body {
         height: auto;
         min-height: 100%;
