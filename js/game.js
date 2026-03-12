@@ -928,6 +928,11 @@ loadGame();
 scheduleFish();
 renderAll();
 
+// Stats toggle
+document.getElementById('stats-toggle').addEventListener('click', () => {
+  document.getElementById('stats-detail').classList.toggle('collapsed');
+});
+
 setInterval(gameLoop,   100);   // 10 ticks/sec
 setInterval(saveGame,   30000, true); // auto-save silent
 setInterval(rotateNews, 15000); // rotate headline
