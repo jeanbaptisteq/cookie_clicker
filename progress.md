@@ -79,3 +79,17 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
   - Interaction fonctionnelle vérifiée:
     - Achat bâtiment `Patte de velours`: qty 87 -> 88, CPS/valeurs mises à jour.
     - Clic chat via `handleCatClick(...)`: delta exact sur ressources `+31.094` croquettes.
+- Refonte layout demandée (Mars 2026):
+  - Colonne centrale dédiée au domaine: suppression des upgrades/news/action du centre; le centre affiche désormais uniquement les éléments achetés (`#empire-grid`) + état vide (`#empire-empty`).
+  - Colonne droite compartimentée:
+    - haut: section `Bonus` (upgrades + news),
+    - bas: section `Boutique` (liste bâtiments achetables),
+    - actions globales déplacées en bas de colonne droite.
+- Ajustements techniques:
+  - `renderEmpire()` ne masque plus la section; il affiche/masque le placeholder vide selon possession.
+  - `render_game_to_text` mis à jour pour refléter la nouvelle carte UI (centre=owned, droite=bonus+boutique).
+  - Musique de fond alignée sur le nouveau fichier local `assets/audio/cat_base_music.mp3`.
+- Validation:
+  - Run skill Playwright (`web_game_playwright_client.js`) exécuté après modifs; captures/états générés.
+  - Vérif fonctionnelle via Playwright MCP: reset état, achat `Patte de velours`, apparition immédiate dans la colonne centrale (`beforeCards=0` -> `afterCards=1`, placeholder caché).
+  - Capture viewport de validation montrant les 3 colonnes et l'objet acheté visible au centre.

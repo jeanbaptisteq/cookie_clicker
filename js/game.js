@@ -506,9 +506,9 @@ function updateAffordability() {
 }
 
 function renderEmpire() {
-  const grid    = document.getElementById('empire-grid');
-  const section = document.getElementById('empire-section');
-  if (!grid || !section) return;
+  const grid  = document.getElementById('empire-grid');
+  const empty = document.getElementById('empire-empty');
+  if (!grid) return;
 
   grid.innerHTML = '';
   let anyOwned = false;
@@ -535,7 +535,7 @@ function renderEmpire() {
     grid.appendChild(card);
   });
 
-  section.style.display = anyOwned ? 'block' : 'none';
+  if (empty) empty.style.display = anyOwned ? 'none' : 'block';
 }
 
 function renderAll() {
@@ -815,7 +815,7 @@ function resetGame() {
 // BACKGROUND MUSIC
 // ═══════════════════════════════════════════════════════════════
 
-const bgMusic = new Audio('assets/audio/cozy-cookie-cats.mp3');
+const bgMusic = new Audio('assets/audio/cat_base_music.mp3');
 bgMusic.loop   = true;
 bgMusic.volume = 0.4;
 
@@ -891,7 +891,7 @@ function renderGameToText() {
   }));
 
   return JSON.stringify({
-    coordinate_system: 'UI layout only (no canvas): left=chat panel, center=upgrades/stats, right=shop list; top-to-bottom flow.',
+    coordinate_system: 'UI layout only (no canvas): left=chat panel, center=owned items, right=bonuses (top) + shop (bottom).',
     mode: 'running',
     resources: {
       cookies: Number(G.cookies.toFixed(3)),
