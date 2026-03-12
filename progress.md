@@ -102,3 +102,6 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
   - `renderUpgrades()` ne rend plus des catégories; il alimente directement la grille de tuiles bonus (`.bonus-tile`).
   - Ajout de placeholders `.bonus-slot` pour reproduire la structure visuelle de référence.
   - `rotateNews()`/`loadGame()` sécurisés si `#news-text` absent.
+- Ajustement demandé: contrôles `Réglages/Son/Sauvegarde` déplacés en haut de la colonne centrale.
+- Réplique/news réintroduite juste sous ces contrôles dans la colonne centrale (`#news-box` + `#news-text`).
+- Vérification visuelle locale effectuée: ordre haut du centre = header -> action-row -> quote -> éléments achetés.

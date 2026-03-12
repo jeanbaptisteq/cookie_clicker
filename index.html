@@ -47,6 +47,15 @@
   <!-- ══ CENTER PANEL ══ -->
   <div id="center-panel">
     <div class="panel-header">🏡 Domaine Félin</div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="saveGame()">💾 Sauvegarder</button>
+      <button class="btn btn-ghost" id="mute-btn" onclick="toggleMute()">🔊 Musique</button>
+      <button class="btn btn-ghost" onclick="resetGame()">🔄 Recommencer</button>
+      <button class="btn-settings" onclick="openSettings()" title="Paramètres">⚙️</button>
+    </div>
+    <div id="news-box">
+      <div id="news-text">Les croquettes tombent du ciel. Les chats s'en réjouissent bruyamment.</div>
+    </div>
 
     <div id="empire-section">
       <div id="empire-label">Objets achetés</div>
@@ -72,13 +81,6 @@
       <span class="buy-step active">100</span>
     </div>
     <div id="buildings-list"></div>
-
-    <div class="action-row">
-      <button class="btn btn-primary" onclick="saveGame()">💾 Sauvegarder</button>
-      <button class="btn btn-ghost" id="mute-btn" onclick="toggleMute()">🔊 Musique</button>
-      <button class="btn btn-ghost" onclick="resetGame()">🔄 Recommencer</button>
-      <button class="btn-settings" onclick="openSettings()" title="Paramètres">⚙️</button>
-    </div>
   </div>
 
 </div>

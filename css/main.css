@@ -1013,10 +1013,10 @@
       border-radius: 0;
       border-left: none;
       border-right: none;
-      border-bottom: none;
       padding: 10px 12px;
       background: rgba(0,0,0,0.22);
-      border-top: 2px solid #6e4a30;
+      border-top: none;
+      border-bottom: 2px solid #6e4a30;
     }
     #news-text {
       font-size: 0.82rem;
@@ -1073,9 +1073,9 @@
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
-      padding: 0 10px 10px;
+      padding: 10px;
       flex-shrink: 0;
-      border-top: 2px solid #6e4a30;
+      border-bottom: 2px solid #6e4a30;
       background: rgba(0,0,0,0.22);
     }
     .btn {
