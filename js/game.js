@@ -336,11 +336,6 @@ function renderStats() {
   const click = computeClickPower();
   const now   = Date.now();
 
-  document.getElementById('cookies-display').textContent     = fmt(G.cookies) + ' croquettes';
-  document.getElementById('cookies-total').textContent       = 'Total : ' + fmt(G.total) + ' croquettes englouties';
-  document.getElementById('cps-display').textContent         = fmtDec(cps) + ' croquettes / sec';
-  document.getElementById('click-power-display').textContent = fmtDec(click) + ' croquette par clic';
-
   // Mini stats in left panel
   document.getElementById('stat-mini-cookies').textContent = fmt(G.cookies) + ' croquettes';
   document.getElementById('stat-mini-total').textContent   = 'Total : ' + fmt(G.total);
