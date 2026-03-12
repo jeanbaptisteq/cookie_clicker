@@ -433,6 +433,19 @@ function renderBuildings() {
     const afford = G.cookies >= cost;
     const cps    = b.baseCps * G.bld[i].mult;
     const totalC = cps * qty;
+    const shownName = unlocked ? b.name : '???';
+    const shownDesc = unlocked ? b.desc : 'Objet inconnu';
+    const shownStat = unlocked ? (qty > 0 ? fmtDec(totalC) + ' 🐾/sec total' : 'Aucun pour l\'instant') : 'Débloquez l\'objet précédent';
+    const tipHtml = unlocked
+      ? `
+        <div class="bld-tip">
+          <div class="bld-tip-name">${b.name}</div>
+          ${b.desc}<br>
+          <span style="color:var(--highlight)">Produit : ${fmtDec(cps)} 🐾/sec chacun</span><br>
+          <span style="color:var(--highlight)">Coût x${selectedBuyAmount} : ${fmt(cost)} 🐾</span>
+        </div>
+      `
+      : '';
 
     const div = document.createElement('div');
     div.className = 'bld-item ' + (!unlocked ? 'bld-locked' : (afford ? 'bld-affordable' : 'bld-unaffordable'));
@@ -441,9 +454,9 @@ function renderBuildings() {
     div.innerHTML = `
       <div class="bld-icon">${b.icon}</div>
       <div class="bld-info">
-        <div class="bld-name">${b.name}</div>
-        <div class="bld-desc">${b.desc}</div>
-        <div class="bld-stat">${qty > 0 ? fmtDec(totalC) + ' 🐾/sec total' : 'Aucun pour l\'instant'}</div>
+        <div class="bld-name">${shownName}</div>
+        <div class="bld-desc">${shownDesc}</div>
+        <div class="bld-stat">${shownStat}</div>
       </div>
       <div class="bld-right">
         <div class="bld-qty">${qty}</div>
@@ -451,12 +464,7 @@ function renderBuildings() {
           x${selectedBuyAmount} ${fmt(cost)} 🐾
         </div>
       </div>
-      <div class="bld-tip">
-        <div class="bld-tip-name">${b.name}</div>
-        ${b.desc}<br>
-        <span style="color:var(--highlight)">Produit : ${fmtDec(cps)} 🐾/sec chacun</span><br>
-        <span style="color:var(--highlight)">Coût x${selectedBuyAmount} : ${fmt(cost)} 🐾</span>
-      </div>
+      ${tipHtml}
     `;
 
     // Always attach — the handler checks affordability itself
@@ -902,14 +910,17 @@ function renderGameToText() {
     .map((upg, idx) => ({ upg, idx }))
     .filter(({ idx }) => G.upg[idx]?.bought)
     .map(({ upg }) => upg.name);
-  const visibleBuildings = BUILDINGS.map((b, id) => ({
-    id: b.id,
-    name: b.name,
-    qty: G.bld[id]?.qty || 0,
-    unlocked: isBuildingUnlocked(id),
-    cost: bldCost(id),
-    affordable: (G.cookies >= bldCost(id)) && isBuildingUnlocked(id),
-  }));
+  const visibleBuildings = BUILDINGS.map((b, id) => {
+    const unlocked = isBuildingUnlocked(id);
+    return {
+      id: b.id,
+      name: unlocked ? b.name : '???',
+      qty: G.bld[id]?.qty || 0,
+      unlocked,
+      cost: bldCost(id),
+      affordable: (G.cookies >= bldCost(id)) && unlocked,
+    };
+  });
 
   return JSON.stringify({
     coordinate_system: 'UI layout only (no canvas): left=chat panel, center=owned items, right=bonuses (top) + shop (bottom).',

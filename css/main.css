@@ -493,20 +493,26 @@
     .bld-item.bld-locked {
       opacity: 1;
       cursor: not-allowed;
-      filter: grayscale(1) saturate(0.08) brightness(0.58) contrast(0.72) blur(1.4px);
+      background: linear-gradient(90deg, rgba(12, 20, 34, 0.52), rgba(12, 20, 34, 0.25));
     }
-    .bld-item.bld-locked .bld-name,
+    .bld-item.bld-locked .bld-name {
+      color: #d8dfeb !important;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
     .bld-item.bld-locked .bld-desc,
-    .bld-item.bld-locked .bld-stat,
-    .bld-item.bld-locked .bld-cost,
-    .bld-item.bld-locked .bld-qty {
-      color: transparent !important;
-      text-shadow: 0 0 9px rgba(233, 244, 255, 0.48);
+    .bld-item.bld-locked .bld-stat {
+      color: #9aa7bc !important;
+      text-shadow: none;
+    }
+    .bld-item.bld-locked .bld-qty,
+    .bld-item.bld-locked .bld-cost {
+      color: #b3bfd3 !important;
     }
     .bld-item.bld-locked .bld-icon {
-      color: rgba(230, 241, 255, 0.58);
-      filter: grayscale(1) brightness(0.9);
-      text-shadow: 0 0 7px rgba(180, 210, 246, 0.34);
+      filter: grayscale(1) brightness(0) contrast(1.45);
+      opacity: 0.95;
+      text-shadow: none;
     }
 
     .bld-icon {

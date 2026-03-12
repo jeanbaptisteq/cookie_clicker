@@ -121,3 +121,18 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
 - Correction demandée sur la proportionnalité des achats bulk:
   - `x10` et `x100` sont désormais strictement proportionnels à `x1` (coût linéaire).
   - Validation locale: `c1=15`, `c10=150`, `c100=1500`, ratios 10 et 100 exacts.
+- Ajustement boutique demandé (Mars 2026): style lock type Cookie Clicker renforcé.
+  - `renderBuildings()` affiche désormais, pour les objets verrouillés:
+    - nom `???`,
+    - description `Objet inconnu`,
+    - statut `Débloquez l'objet précédent`,
+    - tooltip complètement désactivé.
+  - Visuel lock revu dans `css/main.css`:
+    - suppression de l'ancien effet flou,
+    - silhouette noire nette de l'icône (`filter: grayscale + brightness(0)`),
+    - texte lock lisible et cohérent avec `???`.
+  - `render_game_to_text()` aligné: les bâtiments verrouillés sont exposés avec `name: "???"`.
+- Validation:
+  - Vérification visuelle Playwright MCP sur `http://127.0.0.1:8000`: `???` et silhouettes noires visibles en boutique sur les items lockés.
+  - Screenshot de vérification généré via MCP (temp path Playwright).
+  - Run du client skill `web_game_playwright_client.js` effectué; même limitation déjà connue sur le clic `#cat-btn` (élément animé non stable), mais état/screenshot produits (`output/web-game/state-0.json`, `output/web-game/shot-0.png`).
