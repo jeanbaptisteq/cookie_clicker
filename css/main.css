@@ -1053,7 +1053,7 @@
         overflow: hidden;
       }
       #app {
-        grid-template-columns: minmax(180px, 25vw) minmax(320px, 1fr) minmax(180px, 27vw);
+        grid-template-columns: 1fr 1fr 1fr;
         height: 100vh;
         min-height: 100vh;
         overflow: hidden;
