@@ -57,3 +57,25 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
     - pattes: qty 10 => 1 anneau (28px), qty 40 => 1 anneau (24px), qty 80 => 2 anneaux (60/20) avec rayon anneau 2 supérieur.
   - Capture visuelle avancée générée (Playwright MCP full page) montrant les 2 anneaux.
 - Note connue: erreur console non bloquante sur `favicon.ico` (404) déjà présente.
+- Refactor structure (Mars 2026):
+  - Extraction de `index.html` en fichiers séparés `css/main.css` et `js/game.js`.
+  - Réorganisation des assets dans `assets/images` et `assets/audio` avec noms de fichiers normalisés ASCII.
+  - Mise à jour de tous les chemins image/audio dans HTML+JS.
+  - Ajout d'un favicon inline (`data:,`) pour éviter le 404 `favicon.ico` en console.
+- Compatibilité tablette/téléphone:
+  - Ajout de media queries dédiées (`1180px`, `768px`, `480px`) avec app empilée, scroll vertical et densité UI adaptée.
+  - Ajustements des tailles (chat, headers, boutons, liste shop), et `touch-action: manipulation` sur éléments interactifs.
+- Observabilité test skill:
+  - Ajout de `window.render_game_to_text()` avec état JSON concis (ressources, effets, progression).
+  - Ajout de `window.advanceTime(ms)` branché sur une nouvelle boucle `tick(dt)` pour pas de temps déterministe.
+- Test skill `develop-web-game` exécuté après refacto:
+  - Commande: `node "$WEB_GAME_CLIENT" --url http://127.0.0.1:8000 --actions-file "$WEB_GAME_ACTIONS" --click-selector "#cat-btn" --iterations 3 --pause-ms 250`
+  - Artifacts: `output/web-game/shot-{0,1,2}.png`, `output/web-game/state-{0,1,2}.json`.
+  - `render_game_to_text` présent et alimenté; aucun `errors-*.json` généré.
+  - Limitation connue du runner: clic natif sur `#cat-btn` parfois refusé (`element is not stable`) à cause de l'animation continue, mais le run continue et les captures sont valides.
+- Vérification responsive hors client (Playwright MCP):
+  - Tablette 1024x1366: panneaux empilés + lisibilité OK + scroll vertical complet OK.
+  - Téléphone 390x844: lisibilité OK, CTA/boutons accessibles, boutique scrollable, aucune erreur console.
+  - Interaction fonctionnelle vérifiée:
+    - Achat bâtiment `Patte de velours`: qty 87 -> 88, CPS/valeurs mises à jour.
+    - Clic chat via `handleCatClick(...)`: delta exact sur ressources `+31.094` croquettes.
