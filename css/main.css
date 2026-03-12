@@ -1171,7 +1171,7 @@
     }
     #buy-amount-row {
       display: grid;
-      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       align-items: center;
       gap: 6px;
       padding: 8px 12px;
@@ -1179,13 +1179,6 @@
       background: rgba(8,10,14,0.72);
       color: #d2d7de;
       font-weight: 900;
-    }
-    .buy-label {
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #f0f4fb;
-      font-size: 0.86rem;
-      line-height: 1.03;
     }
     .buy-step {
       text-align: center;
