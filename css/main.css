@@ -1071,6 +1071,10 @@
       gap: 8px;
     }
     .stack-row {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       border: 2px solid #916949;
       border-radius: 8px;
       background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
@@ -1105,10 +1109,21 @@
       gap: 2px;
       padding: 6px 8px;
       min-height: 30px;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      white-space: nowrap;
       overflow-x: auto;
       overflow-y: hidden;
       background: rgba(0,0,0,0.12);
       scrollbar-width: thin;
+    }
+    .stack-lane::-webkit-scrollbar {
+      height: 6px;
+    }
+    .stack-lane::-webkit-scrollbar-thumb {
+      background: rgba(232,169,107,0.7);
+      border-radius: 999px;
     }
     .stack-unit {
       font-size: 15px;
