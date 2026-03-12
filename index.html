@@ -46,7 +46,6 @@
 
   <!-- ══ CENTER PANEL ══ -->
   <div id="center-panel">
-    <div class="panel-header">🏡 Domaine Félin</div>
     <div class="action-row">
       <button class="btn btn-primary" onclick="saveGame()">💾 Sauvegarder</button>
       <button class="btn btn-ghost" id="mute-btn" onclick="toggleMute()">🔊 Musique</button>
@@ -68,8 +67,8 @@
   <div id="right-panel">
     <div id="shop-header">Boutique</div>
     <div id="bonus-toolbar">
+      <button id="bonus-expand-btn" type="button" title="Afficher plus de bonus" aria-expanded="false">+</button>
       <div id="bonus-grid"></div>
-      <div id="upgrades-empty">Achetez des objets pour débloquer les bonus.</div>
     </div>
     <div id="buy-amount-row">
       <button class="buy-step active" data-buy="1" type="button">1</button>

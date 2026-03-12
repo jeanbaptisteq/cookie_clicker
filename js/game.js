@@ -34,12 +34,18 @@ const CAT_EVOLUTIONS = [
   { buildingId: 3, image: 'assets/images/griffoir-magique.png' },
   { buildingId: 4, image: 'assets/images/tour-a-chats.png' },
   { buildingId: 5, image: 'assets/images/cafe-des-matous.png' },
+  { buildingId: 6, image: 'assets/images/temple-félin.png' },
+  { buildingId: 7, image: 'assets/images/chat-sorcier.png' },
+  { buildingId: 8, image: 'assets/images/chat-de-l\'espace.png' },
+  { buildingId: 9, image: 'assets/images/chaton-quantique.png' },
 ];
 
 let lastValidCatImage = CAT_BASE_IMAGE;
 let pawClickCarry = 0;
 let pawOrbitCount = -1;
 let lastPawAnimTs = 0;
+let bonusExpanded = false;
+const BONUS_COLLAPSED_ROWS = 1;
 let selectedBuyAmount = 1;
 
 function setupCatImageFallback() {
@@ -387,34 +393,38 @@ function renderStats() {
 }
 
 function renderUpgrades() {
-  const wrap  = document.getElementById('bonus-grid');
-  const empty = document.getElementById('upgrades-empty');
-  if (!wrap || !empty) return;
+  const wrap = document.getElementById('bonus-grid');
+  if (!wrap) return;
   wrap.innerHTML = '';
   const available = ALL_UPGRADES
     .map((upg, idx) => ({ upg, idx }))
     .filter(({ upg, idx }) => !G.upg[idx].bought && upg.condition(G));
   const placeholderIcons = ['🖐️', '✏️', '🖍️', '☞'];
+  const { cols, rowsVisible } = getBonusGridMetrics();
+  wrap.style.setProperty('--bonus-cols', String(cols));
 
   if (available.length === 0) {
-    placeholderIcons.forEach((icon) => {
+    for (let i = 0; i < cols * rowsVisible; i++) {
       const slot = document.createElement('div');
       slot.className = 'bonus-slot';
-      slot.textContent = icon;
+      slot.textContent = placeholderIcons[i % placeholderIcons.length];
       wrap.appendChild(slot);
-    });
-    empty.style.display = 'block';
+    }
+    updateBonusExpandVisibility(0);
     return;
   }
-  empty.style.display = 'none';
 
   available.forEach(({ upg, idx }) => {
     const canAfford = G.cookies >= upg.cost;
     const btn = document.createElement('div');
-    btn.className = 'upgrade-btn bonus-tile' + (canAfford ? '' : ' cant-afford');
+    btn.className = 'upgrade-btn bonus-tile' + (canAfford ? ' bonus-affordable' : ' cant-afford bonus-unaffordable');
     btn.dataset.idx = idx;
+    btn.setAttribute('aria-disabled', canAfford ? 'false' : 'true');
+    btn.title = canAfford ? 'Amélioration achetable' : 'Pas assez de croquettes';
     btn.innerHTML = `
-      <span>${upg.icon}</span>
+      <span class="bonus-icon">${upg.icon}</span>
+      <span class="bonus-price">${fmt(upg.cost)}</span>
+      ${canAfford ? '' : '<span class="bonus-lock">🔒</span>'}
       <div class="tip">
         <span class="tip-name">${upg.name}</span>
         ${upg.desc}
@@ -428,13 +438,69 @@ function renderUpgrades() {
     wrap.appendChild(btn);
   });
 
-  const pad = Math.max(0, 4 - available.length);
+  const slotsPerPage = cols * rowsVisible;
+  const remainder = available.length % slotsPerPage;
+  const pad = remainder === 0 ? 0 : (slotsPerPage - remainder);
   for (let i = 0; i < pad; i++) {
     const slot = document.createElement('div');
     slot.className = 'bonus-slot';
     slot.textContent = placeholderIcons[i % placeholderIcons.length];
     wrap.appendChild(slot);
   }
+
+  updateBonusExpandVisibility(available.length);
+}
+
+function applyBonusToolbarState() {
+  const panel = document.getElementById('right-panel');
+  const btn = document.getElementById('bonus-expand-btn');
+  if (!panel || !btn) return;
+  panel.classList.toggle('bonus-expanded', bonusExpanded);
+  btn.setAttribute('aria-expanded', bonusExpanded ? 'true' : 'false');
+  btn.textContent = bonusExpanded ? '−' : '+';
+  btn.title = bonusExpanded ? 'Afficher moins de bonus' : 'Afficher plus de bonus';
+}
+
+function updateBonusExpandVisibility(tileCount) {
+  const panel = document.getElementById('right-panel');
+  const wrap = document.getElementById('bonus-grid');
+  const btn = document.getElementById('bonus-expand-btn');
+  if (!panel || !wrap || !btn) return;
+
+  const { cols } = getBonusGridMetrics();
+  wrap.style.setProperty('--bonus-cols', String(cols));
+  const rowsNeeded = Math.ceil(tileCount / cols);
+  const canExpand = rowsNeeded > BONUS_COLLAPSED_ROWS;
+
+  panel.classList.toggle('bonus-can-expand', canExpand);
+  if (!canExpand && bonusExpanded) bonusExpanded = false;
+  applyBonusToolbarState();
+}
+
+function getBonusGridMetrics() {
+  const wrap = document.getElementById('bonus-grid');
+  if (!wrap) return { cols: 1, rowsVisible: BONUS_COLLAPSED_ROWS };
+
+  const usableWidth = Math.max(1, wrap.clientWidth || 1);
+  const targetCell = 56;
+  const cols = Math.max(1, Math.floor(usableWidth / targetCell));
+  const rowsVisible = bonusExpanded ? 2 : BONUS_COLLAPSED_ROWS;
+  return { cols, rowsVisible };
+}
+
+function setupBonusExpandToggle() {
+  const btn = document.getElementById('bonus-expand-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    if (!document.getElementById('right-panel')?.classList.contains('bonus-can-expand')) return;
+    bonusExpanded = !bonusExpanded;
+    applyBonusToolbarState();
+  });
+  window.addEventListener('resize', () => {
+    const tileCount = document.querySelectorAll('#bonus-grid .bonus-tile').length;
+    updateBonusExpandVisibility(tileCount);
+  });
+  applyBonusToolbarState();
 }
 
 function renderBuildings() {
@@ -509,6 +575,10 @@ function updateAffordability() {
   document.querySelectorAll('.upgrade-btn[data-idx]').forEach(el => {
     const can = G.cookies >= ALL_UPGRADES[parseInt(el.dataset.idx)].cost;
     el.classList.toggle('cant-afford', !can);
+    el.classList.toggle('bonus-affordable', can);
+    el.classList.toggle('bonus-unaffordable', !can);
+    el.setAttribute('aria-disabled', can ? 'false' : 'true');
+    el.title = can ? 'Amélioration achetable' : 'Pas assez de croquettes';
   });
 }
 
@@ -974,6 +1044,7 @@ setupCatImageFallback();
 loadGame();
 scheduleFish();
 setupBuyAmountSelector();
+setupBonusExpandToggle();
 renderAll();
 
 // Settings modal
