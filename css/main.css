@@ -13,6 +13,16 @@
       --text-light:   #8A5A2A;
       --disabled:     #C8B09A;
       --white:        #ffffff;
+      --theme-body-glow-1: rgba(120,180,255,0.14);
+      --theme-body-glow-2: rgba(89,122,200,0.14);
+      --theme-body-stripe-a: #0b2a4a;
+      --theme-body-stripe-b: #123a66;
+      --theme-panel-stripe-a: #143962;
+      --theme-panel-stripe-b: #1a497b;
+      --theme-header-stripe-a: #1a406d;
+      --theme-header-stripe-b: #205081;
+      --theme-bonus-stripe-a: #123356;
+      --theme-bonus-stripe-b: #184169;
     }
 
     html, body {
@@ -747,15 +757,16 @@
     /* ===== Cookie Clicker-inspired 3-column override ===== */
     body {
       background:
-        radial-gradient(circle at 20% 20%, rgba(120,180,255,0.14), transparent 48%),
-        radial-gradient(circle at 80% 85%, rgba(89,122,200,0.14), transparent 45%),
+        radial-gradient(circle at 20% 20%, var(--theme-body-glow-1), transparent 48%),
+        radial-gradient(circle at 80% 85%, var(--theme-body-glow-2), transparent 45%),
         repeating-linear-gradient(
           90deg,
-          #0b2a4a 0,
-          #0b2a4a 28px,
-          #123a66 28px,
-          #123a66 56px
+          var(--theme-body-stripe-a) 0,
+          var(--theme-body-stripe-a) 28px,
+          var(--theme-body-stripe-b) 28px,
+          var(--theme-body-stripe-b) 56px
         );
+      transition: background 0.35s ease;
     }
     body::before { display: none; }
 
@@ -774,13 +785,14 @@
         linear-gradient(180deg, rgba(245,253,255,0.06), rgba(55,97,158,0.04)),
         repeating-linear-gradient(
           90deg,
-          #143962 0,
-          #143962 28px,
-          #1a497b 28px,
-          #1a497b 56px
+          var(--theme-panel-stripe-a) 0,
+          var(--theme-panel-stripe-a) 28px,
+          var(--theme-panel-stripe-b) 28px,
+          var(--theme-panel-stripe-b) 56px
         );
       box-shadow: inset 0 0 0 2px #9d714c;
       color: #ebf7ff;
+      transition: background 0.35s ease;
     }
 
     #left-panel {
@@ -967,10 +979,10 @@
         linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.35)),
         repeating-linear-gradient(
           90deg,
-          #1a406d 0,
-          #1a406d 28px,
-          #205081 28px,
-          #205081 56px
+          var(--theme-header-stripe-a) 0,
+          var(--theme-header-stripe-a) 28px,
+          var(--theme-header-stripe-b) 28px,
+          var(--theme-header-stripe-b) 56px
         );
       border-bottom: 4px solid #4f2c17;
       text-shadow: 0 2px 0 #3d2514;
@@ -986,7 +998,13 @@
       transition: max-height 0.22s ease;
       background:
         linear-gradient(180deg, rgba(0,0,0,0.20), rgba(0,0,0,0.35)),
-        repeating-linear-gradient(90deg, #123356 0, #123356 24px, #184169 24px, #184169 48px);
+        repeating-linear-gradient(
+          90deg,
+          var(--theme-bonus-stripe-a) 0,
+          var(--theme-bonus-stripe-a) 24px,
+          var(--theme-bonus-stripe-b) 24px,
+          var(--theme-bonus-stripe-b) 48px
+        );
     }
     #right-panel.bonus-expanded #bonus-toolbar {
       max-height: 176px;

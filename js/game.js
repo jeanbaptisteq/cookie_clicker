@@ -39,8 +39,131 @@ const CAT_EVOLUTIONS = [
   { buildingId: 8, image: 'assets/images/chat-de-l\'espace.png' },
   { buildingId: 9, image: 'assets/images/chaton-quantique.png' },
 ];
+const CAT_BG_THEMES = {
+  0: {
+    '--theme-body-glow-1': 'rgba(255,182,124,0.18)',
+    '--theme-body-glow-2': 'rgba(255,127,94,0.16)',
+    '--theme-body-stripe-a': '#35273e',
+    '--theme-body-stripe-b': '#463457',
+    '--theme-panel-stripe-a': '#4e3864',
+    '--theme-panel-stripe-b': '#61467a',
+    '--theme-header-stripe-a': '#71518e',
+    '--theme-header-stripe-b': '#8361a3',
+    '--theme-bonus-stripe-a': '#5f447b',
+    '--theme-bonus-stripe-b': '#745496',
+  },
+  1: {
+    '--theme-body-glow-1': 'rgba(255,220,129,0.20)',
+    '--theme-body-glow-2': 'rgba(255,175,88,0.18)',
+    '--theme-body-stripe-a': '#3a2f2a',
+    '--theme-body-stripe-b': '#4d3f34',
+    '--theme-panel-stripe-a': '#61503d',
+    '--theme-panel-stripe-b': '#77634a',
+    '--theme-header-stripe-a': '#8a734f',
+    '--theme-header-stripe-b': '#a1875e',
+    '--theme-bonus-stripe-a': '#6f5c43',
+    '--theme-bonus-stripe-b': '#886f50',
+  },
+  2: {
+    '--theme-body-glow-1': 'rgba(146,227,138,0.20)',
+    '--theme-body-glow-2': 'rgba(86,173,128,0.18)',
+    '--theme-body-stripe-a': '#143726',
+    '--theme-body-stripe-b': '#22583a',
+    '--theme-panel-stripe-a': '#1f4f34',
+    '--theme-panel-stripe-b': '#2f6945',
+    '--theme-header-stripe-a': '#2f7047',
+    '--theme-header-stripe-b': '#3f8559',
+    '--theme-bonus-stripe-a': '#255f3d',
+    '--theme-bonus-stripe-b': '#33774f',
+  },
+  3: {
+    '--theme-body-glow-1': 'rgba(255,146,79,0.20)',
+    '--theme-body-glow-2': 'rgba(255,96,58,0.18)',
+    '--theme-body-stripe-a': '#2c1c1f',
+    '--theme-body-stripe-b': '#3d2528',
+    '--theme-panel-stripe-a': '#4d2d2f',
+    '--theme-panel-stripe-b': '#63373a',
+    '--theme-header-stripe-a': '#7b423c',
+    '--theme-header-stripe-b': '#944e44',
+    '--theme-bonus-stripe-a': '#5f3636',
+    '--theme-bonus-stripe-b': '#78433f',
+  },
+  4: {
+    '--theme-body-glow-1': 'rgba(255,122,92,0.19)',
+    '--theme-body-glow-2': 'rgba(238,166,109,0.18)',
+    '--theme-body-stripe-a': '#2d2328',
+    '--theme-body-stripe-b': '#3e2d33',
+    '--theme-panel-stripe-a': '#4f3940',
+    '--theme-panel-stripe-b': '#66464d',
+    '--theme-header-stripe-a': '#7d5152',
+    '--theme-header-stripe-b': '#945f5b',
+    '--theme-bonus-stripe-a': '#603f45',
+    '--theme-bonus-stripe-b': '#7b4f52',
+  },
+  5: {
+    '--theme-body-glow-1': 'rgba(255,207,150,0.18)',
+    '--theme-body-glow-2': 'rgba(120,186,255,0.14)',
+    '--theme-body-stripe-a': '#2c2a35',
+    '--theme-body-stripe-b': '#3c3948',
+    '--theme-panel-stripe-a': '#4a4658',
+    '--theme-panel-stripe-b': '#5d596d',
+    '--theme-header-stripe-a': '#6f6a83',
+    '--theme-header-stripe-b': '#827d99',
+    '--theme-bonus-stripe-a': '#575168',
+    '--theme-bonus-stripe-b': '#6d6681',
+  },
+  6: {
+    '--theme-body-glow-1': 'rgba(232,79,79,0.21)',
+    '--theme-body-glow-2': 'rgba(255,188,84,0.17)',
+    '--theme-body-stripe-a': '#30171b',
+    '--theme-body-stripe-b': '#441f24',
+    '--theme-panel-stripe-a': '#58272b',
+    '--theme-panel-stripe-b': '#743033',
+    '--theme-header-stripe-a': '#8d3a38',
+    '--theme-header-stripe-b': '#a64741',
+    '--theme-bonus-stripe-a': '#6e2f33',
+    '--theme-bonus-stripe-b': '#8a3f3d',
+  },
+  7: {
+    '--theme-body-glow-1': 'rgba(146,110,255,0.21)',
+    '--theme-body-glow-2': 'rgba(84,176,255,0.18)',
+    '--theme-body-stripe-a': '#221d43',
+    '--theme-body-stripe-b': '#2f275a',
+    '--theme-panel-stripe-a': '#3c3270',
+    '--theme-panel-stripe-b': '#51438c',
+    '--theme-header-stripe-a': '#6552a4',
+    '--theme-header-stripe-b': '#7b66bd',
+    '--theme-bonus-stripe-a': '#4f4082',
+    '--theme-bonus-stripe-b': '#65559f',
+  },
+  8: {
+    '--theme-body-glow-1': 'rgba(106,152,255,0.23)',
+    '--theme-body-glow-2': 'rgba(106,255,243,0.20)',
+    '--theme-body-stripe-a': '#0c1d40',
+    '--theme-body-stripe-b': '#123160',
+    '--theme-panel-stripe-a': '#184278',
+    '--theme-panel-stripe-b': '#21579a',
+    '--theme-header-stripe-a': '#2b6bb8',
+    '--theme-header-stripe-b': '#3b82d2',
+    '--theme-bonus-stripe-a': '#20508f',
+    '--theme-bonus-stripe-b': '#2f69ae',
+  },
+  9: {
+    '--theme-body-glow-1': 'rgba(114,255,195,0.23)',
+    '--theme-body-glow-2': 'rgba(179,125,255,0.22)',
+    '--theme-body-stripe-a': '#14363d',
+    '--theme-body-stripe-b': '#1d4d56',
+    '--theme-panel-stripe-a': '#24636e',
+    '--theme-panel-stripe-b': '#2e7d89',
+    '--theme-header-stripe-a': '#3894a1',
+    '--theme-header-stripe-b': '#48acb7',
+    '--theme-bonus-stripe-a': '#2b7480',
+    '--theme-bonus-stripe-b': '#3a8e9b',
+  },
+};
 
 let lastValidCatImage = CAT_BASE_IMAGE;
+let lastAppliedThemeStage = -1;
 let pawClickCarry = 0;
 let pawOrbitCount = -1;
 let lastPawAnimTs = 0;
@@ -73,9 +196,26 @@ function getBestCatEvolutionImage() {
   return best;
 }
 
+function getBestCatEvolutionStage() {
+  let best = 0;
+  CAT_EVOLUTIONS.forEach((evo) => {
+    if ((G.bld[evo.buildingId]?.qty || 0) >= 1) best = evo.buildingId;
+  });
+  return best;
+}
+
+function applyCatTheme(stage) {
+  if (stage === lastAppliedThemeStage) return;
+  const rootStyle = document.documentElement.style;
+  const theme = CAT_BG_THEMES[stage] || CAT_BG_THEMES[0];
+  Object.entries(theme).forEach(([name, value]) => rootStyle.setProperty(name, value));
+  lastAppliedThemeStage = stage;
+}
+
 function renderCatEvolution() {
   const catBtn = document.getElementById('cat-btn');
   if (!catBtn) return;
+  applyCatTheme(getBestCatEvolutionStage());
   const target = getBestCatEvolutionImage();
   if (catBtn.getAttribute('src') === target) return;
   catBtn.src = target;
