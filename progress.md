@@ -105,3 +105,8 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
 - Ajustement demandé: contrôles `Réglages/Son/Sauvegarde` déplacés en haut de la colonne centrale.
 - Réplique/news réintroduite juste sous ces contrôles dans la colonne centrale (`#news-box` + `#news-text`).
 - Vérification visuelle locale effectuée: ordre haut du centre = header -> action-row -> quote -> éléments achetés.
+- Colonne centrale: affichage des objets achetés refait en mode "stack" type Cookie Clicker.
+  - Remplacement des cards uniques par des lignes par bâtiment (`.stack-row`) avec répétition visuelle des icônes (`.stack-unit`) selon la quantité.
+  - En cas de très grande quantité, affichage compact avec compteur `+N` en fin de ligne.
+- Validation locale:
+  - Vue normale + test simulé (qty 50/22/14/8) montrant l'empilement horizontal par rangée dans le panneau central.

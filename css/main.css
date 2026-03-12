@@ -1060,13 +1060,66 @@
       flex: 1;
       min-height: 0;
       overflow-y: auto;
-      align-content: flex-start;
-      justify-content: center;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      align-content: stretch;
+      justify-content: flex-start;
+      gap: 8px;
     }
-    .empire-card {
-      background: rgba(246,251,255,0.93);
-      border-color: #916949;
+    .stack-row {
+      border: 2px solid #916949;
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+      overflow: hidden;
+    }
+    .stack-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.16);
+      background: rgba(0,0,0,0.22);
+    }
+    .stack-name {
+      color: #f5f9ff;
+      font-weight: 900;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .stack-meta {
+      color: #ffd29c;
+      font-size: 0.72rem;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .stack-lane {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 8px;
+      min-height: 30px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.12);
+    }
+    .stack-unit {
+      font-size: 15px;
+      line-height: 1;
+      filter: drop-shadow(0 1px 0 rgba(0,0,0,0.4));
+      flex-shrink: 0;
+      opacity: 0.98;
+    }
+    .stack-more {
+      margin-left: 4px;
+      padding: 2px 6px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      color: #f5f9ff;
+      background: rgba(0,0,0,0.4);
+      font-size: 0.7rem;
+      font-weight: 900;
     }
 
     .action-row {

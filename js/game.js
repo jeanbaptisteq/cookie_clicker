@@ -497,21 +497,40 @@ function renderEmpire() {
     if (qty === 0) return;
     anyOwned = true;
 
-    const tier    = qty >= 50 ? 4 : qty >= 25 ? 3 : qty >= 5 ? 2 : 1;
-    const cps     = b.baseCps * G.bld[i].mult * qty;
-    const badge   = tier === 4 ? '👑' : tier === 3 ? '✨' : tier === 2 ? '⭐' : '';
+    const cps = b.baseCps * G.bld[i].mult * qty;
+    const displayCount = Math.min(qty, 90);
 
-    const card = document.createElement('div');
-    card.className = `empire-card t${tier}`;
-    card.title = `${b.name} — ${qty} possédé(s) — ${fmtDec(cps)} 🐾/sec`;
-    card.innerHTML = `
-      ${badge ? `<div class="empire-badge">${badge}</div>` : ''}
-      <div class="empire-icon">${b.icon}</div>
-      <div class="empire-qty">×${qty}</div>
-      <div class="empire-name">${BLD_SHORT[i]}</div>
-      <div class="empire-cps">${fmtDec(cps)}/s</div>
+    const row = document.createElement('div');
+    row.className = 'stack-row';
+    row.title = `${b.name} — ${qty} possédé(s) — ${fmtDec(cps)} 🐾/sec`;
+
+    const head = document.createElement('div');
+    head.className = 'stack-head';
+    head.innerHTML = `
+      <span class="stack-name">${b.icon} ${b.name}</span>
+      <span class="stack-meta">x${qty} · ${fmtDec(cps)}/s</span>
     `;
-    grid.appendChild(card);
+    row.appendChild(head);
+
+    const lane = document.createElement('div');
+    lane.className = 'stack-lane';
+
+    for (let n = 0; n < displayCount; n++) {
+      const unit = document.createElement('span');
+      unit.className = 'stack-unit';
+      unit.textContent = b.icon;
+      lane.appendChild(unit);
+    }
+
+    if (qty > displayCount) {
+      const more = document.createElement('span');
+      more.className = 'stack-more';
+      more.textContent = `+${qty - displayCount}`;
+      lane.appendChild(more);
+    }
+
+    row.appendChild(lane);
+    grid.appendChild(row);
   });
 
   if (empty) empty.style.display = anyOwned ? 'none' : 'block';
