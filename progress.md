@@ -1,0 +1,59 @@
+Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exactement de celle de coockie clicker dont je t'ai mis une Image. À gauche: le chat ou on peut cliquer. au milieu: la partie où il y a toutes les améliorations qui sont ajoutées. Là, en l'occurrence, ça va par exemple être les pots d'herbes à chat ou les autres amélioration. Ils sont tous stockés par catégories. À droite: toute la partie avec les améliorations / bonus.
+
+- Chargé la référence visuelle (capture Cookie Clicker) et le code actuel.
+- Plan: reproduire layout 3 colonnes bleu/bois, déplacer le chat cliquable à gauche, catégoriser les améliorations au centre, garder la boutique/bonus à droite.
+- Layout refait en 3 colonnes:
+  - Gauche: nom de pâtisserie, compteur, chat cliquable, compteur principal.
+  - Milieu: panneau "Améliorations", news, statistiques, domaine félin, actions.
+  - Droite: boutique/bâtiments + texte bonus.
+- `renderUpgrades()` refactoré en rendu par catégories:
+  - Catégorie "Pouvoir du clic".
+  - Une catégorie par bâtiment (inclut champ de cataire/pots d'herbe à chat quand débloqués).
+- Vérification Playwright skill exécutée via `web_game_playwright_client.js` et captures générées:
+  - `output/web-game/shot-0.png`
+  - `output/web-game/shot-1.png`
+- Note test: clic automatisé direct sur le chat échoue avec ce client car l'image est animée en continu ("element is not stable"), mais le rendu global passe.
+- Feature ajoutée: évolution visuelle du chat selon la progression.
+  - Mapping actuel branché sur les images présentes:
+    - Building 1 `Chaton curieux.png`
+    - Building 2 `Champ de cataire.png`
+    - Building 3 `Griffoir magique.png`
+    - Building 4 `Tour à chats.png`
+    - Building 5 `Café des Matous.png`
+  - Comportement:
+    - Dès qu'un bâtiment de ce mapping est possédé (`qty >= 1`), le chat prend cette forme.
+    - Toujours la forme la plus avancée (plus haut building atteint).
+    - Fallback auto vers la dernière image valide si une image est manquante/renommée.
+- Test ciblé effectué (Playwright local script):
+  - Progression simulée de T2 vers T5.
+  - Résultat console: `SRC_AFTER_T2=Champ de cataire.png`, `SRC_AFTER_T5=Café des Matous.png`.
+  - Capture de vérification: `output/evo-check.png`.
+- Nouvelle feature "Patte de velours = clickers orbitaux":
+  - Ajout d'un anneau circulaire `#paws-orbit` autour de la tête du chat.
+  - Une main/clicker visuel par Patte de velours (cap à 120).
+  - Animation de "tap" sur une main + impact léger sur la tête à chaque auto-clic.
+  - Taille de la tête et du conteneur réduite pour que l'orbite tienne proprement dans la colonne gauche.
+- Économie ajustée:
+  - La production de `Patte de velours` n'est plus ajoutée en passif direct.
+  - Elle est convertie en clics automatiques discrets (même ordre de grandeur CPS), ce qui rend le comportement fidèle au concept de cursor/clicker.
+- Vérifications:
+  - Test script local: 24 pattes => 24 clickers orbitaux rendus (`PAW_COUNT=24`).
+  - Capture visuelle: `output/paw-orbit-check.png`.
+- Implémentation demandée (Mars 2026):
+  - Suppression complète du bloc titre gauche "Pâtisserie Feline Panic" (HTML + CSS), avec léger ajustement du padding haut du panneau gauche.
+  - Ajout de `isBuildingUnlocked(id)` pour un déblocage progressif des bâtiments (chaîne i-1 possédé, ou item déjà possédé).
+  - `renderBuildings()` et `updateAffordability()` passent à 3 états explicites: `bld-locked`, `bld-unaffordable`, `bld-affordable`.
+  - Achat bloqué pour les items non débloqués (`buyBuilding` + garde au clic sur item).
+  - Refonte visuelle des items lockés: silhouette floue (blur + grayscale), texte illisible, icône conservée en silhouette, tooltip désactivé en hover lock.
+  - Refonte des auto-clickers "Patte de velours":
+    - glyph `☞` remplacé par une patte CSS (radial-gradients),
+    - orientation des pattes vers le chat,
+    - layout via `getPawOrbitLayout(count, orbitSize)`.
+    - paliers: 1-24 taille 28px (1 anneau), 25-60 taille 24px (1 anneau), 61+ -> 2 anneaux (60 + surplus), tailles 21px/18px.
+- Validation:
+  - Run du client Playwright du skill sur `http://127.0.0.1:8000` (screenshot `output/web-game/shot-0.png`).
+  - Vérif runtime via Playwright MCP:
+    - état initial: 1 bâtiment net, 9 lockés, filtre lock actif, bloc titre absent.
+    - pattes: qty 10 => 1 anneau (28px), qty 40 => 1 anneau (24px), qty 80 => 2 anneaux (60/20) avec rayon anneau 2 supérieur.
+  - Capture visuelle avancée générée (Playwright MCP full page) montrant les 2 anneaux.
+- Note connue: erreur console non bloquante sur `favicon.ico` (404) déjà présente.

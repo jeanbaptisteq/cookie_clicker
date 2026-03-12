@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐱 Ronron Clicker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & variables ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:           #FFF5E6;
+      --panel-bg:     #FFF0D9;
+      --border:       #E8A96B;
+      --accent:       #E8845C;
+      --accent-hover: #D4704A;
+      --accent2:      #9B6B9E;
+      --highlight:    #F4C97A;
+      --text:         #3D1A00;
+      --text-light:   #8A5A2A;
+      --disabled:     #C8B09A;
+      --white:        #ffffff;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Subtle animated warm glow behind everything */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 35% 50%, rgba(232,132,92,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 70% 45%, rgba(155,107,158,0.05) 0%, transparent 70%);
+      animation: bgBreath 8s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+    #app { position: relative; z-index: 1; }
+    @keyframes bgBreath {
+      from { opacity: 0.6; }
+      to   { opacity: 1; }
+    }
+
+    /* ── Layout ── */
+    #app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Left panel ── */
+    #left-panel {
+      width: 270px;
+      min-width: 270px;
+      background: linear-gradient(180deg, #FFF5E8 0%, #FFF0D6 100%);
+      border-right: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 13px;
+      overflow-y: auto;
+      gap: 10px;
+    }
+
+    #game-title {
+      font-size: 1.4em;
+      font-weight: 900;
+      background: linear-gradient(135deg, #E8845C, #C45CB0, #9B6B9E);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      letter-spacing: -0.5px;
+    }
+    #game-subtitle {
+      font-size: 0.72em;
+      color: var(--text-light);
+      text-align: center;
+      margin-top: -6px;
+    }
+
+    /* ── Cat zone (center) ── */
+    #cat-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #cat-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 310px;
+      height: 310px;
+    }
+
+    #cat-glow {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244,201,122,0.45) 0%, rgba(232,132,92,0.15) 50%, transparent 72%);
+      pointer-events: none;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.06); }
+    }
+
+    #cat-btn {
+      cursor: pointer;
+      user-select: none;
+      display: block;
+      position: relative;
+      z-index: 1;
+      width: 280px;
+      height: 280px;
+      object-fit: contain;
+      animation: catIdle 4s ease-in-out infinite;
+      transition: filter 0.15s;
+      filter: drop-shadow(0 6px 18px rgba(232,132,92,0.3));
+    }
+    #cat-btn:hover {
+      filter: drop-shadow(0 10px 32px rgba(232,132,92,0.7)) drop-shadow(0 0 16px rgba(244,201,122,0.5));
+    }
+
+    /* class-based animation overrides (higher specificity via !important) */
+    #cat-btn.cat-squish { animation: catSquish 0.38s cubic-bezier(0.36,0.07,0.19,0.97) both !important; }
+    #cat-btn.cat-wobble { animation: catWobble 0.65s ease-in-out both !important; }
+    #cat-btn.cat-twitch { animation: catTwitch 0.45s ease-in-out !important; }
+
+    @keyframes catIdle {
+      0%   { transform: translateY(0px)  scale(1)    rotate(0deg); }
+      25%  { transform: translateY(-6px) scale(1.02) rotate(-0.6deg); }
+      50%  { transform: translateY(-9px) scale(1.04) rotate(0deg); }
+      75%  { transform: translateY(-5px) scale(1.02) rotate(0.6deg); }
+      100% { transform: translateY(0px)  scale(1)    rotate(0deg); }
+    }
+
+    @keyframes catSquish {
+      0%   { transform: scale(1, 1)       translateY(0px); }
+      15%  { transform: scale(1.14, 0.80) translateY(8px); }
+      35%  { transform: scale(0.92, 1.12) translateY(-10px); }
+      55%  { transform: scale(1.05, 0.96) translateY(-3px); }
+      72%  { transform: scale(0.98, 1.03) translateY(1px); }
+      100% { transform: scale(1, 1)       translateY(0px); }
+    }
+
+    @keyframes catWobble {
+      0%   { transform: rotate(0deg)   scale(1); }
+      12%  { transform: rotate(-6deg)  scale(1.06); }
+      28%  { transform: rotate(5deg)   scale(1.08); }
+      44%  { transform: rotate(-4deg)  scale(1.05); }
+      60%  { transform: rotate(3deg)   scale(1.02); }
+      76%  { transform: rotate(-1.5deg) scale(1.01); }
+      100% { transform: rotate(0deg)   scale(1); }
+    }
+
+    @keyframes catTwitch {
+      0%, 100% { transform: translateY(-9px) scale(1.04) rotate(0deg); }
+      25%       { transform: translateY(-9px) scale(1.04) rotate(-5deg); }
+      60%       { transform: translateY(-9px) scale(1.04) rotate(3.5deg); }
+      80%       { transform: translateY(-9px) scale(1.04) rotate(-2deg); }
+    }
+
+    /* Big cookie counter displayed in center */
+    #center-counter {
+      text-align: center;
+    }
+    #cookies-display {
+      font-size: 2.4em;
+      font-weight: 900;
+      background: linear-gradient(135deg, #E8845C, #C94F9E);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+      animation: counterPop 0.12s ease-out;
+    }
+    @keyframes counterPop {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    #cookies-total {
+      font-size: 0.78em;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+    #cps-display {
+      display: inline-block;
+      font-size: 1em;
+      font-weight: 800;
+      color: var(--accent2);
+      background: rgba(155,107,158,0.1);
+      border: 1.5px solid rgba(155,107,158,0.22);
+      border-radius: 20px;
+      padding: 3px 14px;
+      margin-top: 8px;
+    }
+    #click-power-display {
+      font-size: 0.76em;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 0;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9em;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: linear-gradient(135deg, #E8845C, #C94F9E);
+      color: var(--white);
+      box-shadow: 0 3px 12px rgba(232,132,92,0.35);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #D4704A, #B03D8C);
+      box-shadow: 0 4px 18px rgba(232,132,92,0.5);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-light);
+      font-size: 0.78em;
+      padding: 6px 0;
+    }
+    .btn-ghost:hover { background: rgba(232,169,107,0.12); }
+
+    /* ── Center panel ── */
+    #center-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      padding: 20px;
+      gap: 16px;
+    }
+    /* Cat zone stretches to fill available space when no empire yet */
+    #cat-zone {
+      flex: 1;
+      min-height: 0;
+      justify-content: center;
+    }
+
+    /* Stats-box in left panel */
+    #stats-box {
+      width: 100%;
+      background: linear-gradient(160deg, #ffffff 0%, #FFF8EE 100%);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 14px;
+      box-shadow: 0 2px 10px rgba(232,132,92,0.08);
+    }
+    #stat-mini-cookies {
+      font-size: 1.15em;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    #stat-mini-total {
+      font-size: 0.76em;
+      color: var(--text-light);
+      margin-top: 1px;
+    }
+    #stat-mini-cps {
+      font-size: 0.9em;
+      font-weight: 800;
+      color: var(--accent2);
+      margin-top: 6px;
+    }
+    #stat-mini-click {
+      font-size: 0.74em;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    .section-label {
+      font-size: 0.75em;
+      font-weight: 800;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    #upgrades-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 20px;
+    }
+    #upgrades-empty {
+      font-size: 0.85em;
+      color: var(--text-light);
+      font-style: italic;
+    }
+
+    .upgrade-btn {
+      width: 62px;
+      height: 62px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    }
+    .upgrade-btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 6px 16px rgba(232,132,92,0.35);
+      border-color: var(--accent);
+    }
+    .upgrade-btn.cant-afford {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .upgrade-btn.cant-afford:hover {
+      transform: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+      border-color: var(--border);
+    }
+
+    /* Tooltip */
+    .tip {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(45,20,0,0.96);
+      color: var(--white);
+      padding: 10px 13px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      width: 190px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s;
+      z-index: 300;
+      line-height: 1.4;
+    }
+    .upgrade-btn:hover .tip { opacity: 1; }
+    .tip-name {
+      font-weight: 900;
+      font-size: 13px;
+      color: var(--highlight);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .tip-cost { color: var(--highlight); font-weight: 700; margin-top: 4px; display: block; }
+
+    /* News */
+    #news-box {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    #news-text {
+      font-size: 0.88em;
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.5;
+      transition: opacity 0.4s;
+    }
+
+    /* Stats panel in center */
+    #stats-detail {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82em;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(232,169,107,0.2);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--text-light); }
+    .stat-value { font-weight: 800; color: var(--text); }
+
+    /* ── Right panel ── */
+    #right-panel {
+      width: 340px;
+      min-width: 340px;
+      background: linear-gradient(180deg, #FFF5E8 0%, #FFF0D6 100%);
+      border-left: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #shop-header {
+      padding: 14px 18px 10px;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.75em;
+      font-weight: 800;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+
+    #buildings-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .bld-item {
+      display: flex;
+      align-items: center;
+      padding: 9px 16px;
+      border-bottom: 1px solid rgba(232,169,107,0.25);
+      cursor: pointer;
+      transition: background 0.12s;
+      position: relative;
+    }
+    .bld-item:hover { background: linear-gradient(90deg, rgba(232,169,107,0.18), rgba(232,132,92,0.06)); }
+    .bld-item.bld-affordable { }
+    .bld-item.bld-unaffordable { opacity: 0.52; cursor: not-allowed; }
+    .bld-item.bld-locked {
+      opacity: 1;
+      cursor: not-allowed;
+      filter: grayscale(1) saturate(0.08) brightness(0.58) contrast(0.72) blur(1.4px);
+    }
+    .bld-item.bld-locked .bld-name,
+    .bld-item.bld-locked .bld-desc,
+    .bld-item.bld-locked .bld-stat,
+    .bld-item.bld-locked .bld-cost,
+    .bld-item.bld-locked .bld-qty {
+      color: transparent !important;
+      text-shadow: 0 0 9px rgba(233, 244, 255, 0.48);
+    }
+    .bld-item.bld-locked .bld-icon {
+      color: rgba(230, 241, 255, 0.58);
+      filter: grayscale(1) brightness(0.9);
+      text-shadow: 0 0 7px rgba(180, 210, 246, 0.34);
+    }
+
+    .bld-icon {
+      font-size: 34px;
+      min-width: 42px;
+      text-align: center;
+    }
+    .bld-info { flex: 1; min-width: 0; padding: 0 8px; }
+    .bld-name {
+      font-size: 0.9em;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bld-desc {
+      font-size: 0.7em;
+      color: var(--text-light);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bld-stat {
+      font-size: 0.68em;
+      color: var(--accent2);
+      margin-top: 2px;
+      font-weight: 700;
+    }
+    .bld-right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .bld-qty {
+      font-size: 1.6em;
+      font-weight: 900;
+      color: var(--text-light);
+      line-height: 1;
+    }
+    .bld-cost {
+      font-size: 0.78em;
+      font-weight: 700;
+    }
+
+    /* Building tooltip (hover) */
+    .bld-tip {
+      display: none;
+      position: absolute;
+      right: calc(100% + 8px);
+      top: 0;
+      width: 200px;
+      background: rgba(45,20,0,0.96);
+      color: var(--white);
+      padding: 10px 13px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      z-index: 300;
+      line-height: 1.5;
+      pointer-events: none;
+    }
+    .bld-item:hover .bld-tip { display: block; }
+    .bld-item.bld-locked:hover .bld-tip { display: none; }
+    .bld-tip-name { font-weight: 900; font-size: 13px; color: var(--highlight); margin-bottom: 4px; }
+
+    /* ── Effect bar (top) ── */
+    #effect-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: linear-gradient(90deg, #F4C97A, #E8845C, #9B6B9E);
+      color: var(--white);
+      text-align: center;
+      padding: 6px 12px;
+      font-size: 0.88em;
+      font-weight: 800;
+      font-family: 'Nunito', sans-serif;
+      z-index: 500;
+      display: none;
+      animation: rainbowShift 3s linear infinite;
+    }
+    @keyframes rainbowShift {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    /* ── Golden fish ── */
+    #golden-fish {
+      position: fixed;
+      display: none;
+      font-size: 54px;
+      cursor: pointer;
+      z-index: 600;
+      filter: drop-shadow(0 0 14px #F4C97A) drop-shadow(0 0 4px #fff);
+      animation: fishSwim 0.9s ease-in-out infinite alternate;
+      transition: filter 0.15s, transform 0.15s;
+    }
+    #golden-fish:hover {
+      filter: drop-shadow(0 0 24px #F4C97A) drop-shadow(0 0 8px #fff);
+      transform: scale(1.15);
+    }
+    @keyframes fishSwim {
+      from { transform: translateY(0) rotate(-6deg); }
+      to   { transform: translateY(-10px) rotate(6deg); }
+    }
+
+    /* ── Particles ── */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 700;
+      font-size: 18px;
+      animation: particleFloat 0.9s ease-out forwards;
+    }
+    @keyframes particleFloat {
+      0%   { opacity: 1;   transform: translateY(0)     scale(1);   }
+      100% { opacity: 0;   transform: translateY(-65px) scale(0.4); }
+    }
+
+    /* ── Toast ── */
+    #toast-wrap {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: rgba(45,20,0,0.92);
+      color: var(--white);
+      padding: 10px 22px;
+      border-radius: 22px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.88em;
+      font-weight: 700;
+      border: 1.5px solid var(--highlight);
+      animation: toastIn 0.3s ease;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0);   }
+    }
+
+    /* ── Empire section (bâtiments possédés) ── */
+    #empire-section {
+      display: none;
+      width: 100%;
+      max-width: 520px;
+    }
+    #empire-label {
+      font-size: 0.7em;
+      font-weight: 800;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    #empire-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .empire-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 9px 9px 6px;
+      border-radius: 16px;
+      background: white;
+      border: 2px solid var(--border);
+      min-width: 72px;
+      cursor: default;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .empire-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(232,132,92,0.2); }
+
+    .empire-icon  { font-size: 26px; line-height: 1; }
+    .empire-qty   { font-size: 0.88em; font-weight: 900; color: var(--text); margin-top: 4px; }
+    .empire-name  { font-size: 0.6em; color: var(--text-light); text-align: center; margin-top: 1px; white-space: nowrap; }
+    .empire-cps   { font-size: 0.57em; color: var(--accent2); margin-top: 2px; font-weight: 700; }
+
+    .empire-badge {
+      position: absolute;
+      top: -7px; right: -5px;
+      font-size: 12px;
+      line-height: 1;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+
+    /* Tier 2 — warm (5–24) */
+    .empire-card.t2 {
+      background: linear-gradient(155deg, #FFFAF2, #FFE8CC);
+      border-color: #E8A96B;
+      box-shadow: 0 2px 8px rgba(232,169,107,0.2);
+    }
+    /* Tier 3 — golden (25–49) */
+    .empire-card.t3 {
+      background: linear-gradient(155deg, #FFFBE6, #FFD86A);
+      border-color: #F4C040;
+      box-shadow: 0 3px 14px rgba(244,192,64,0.35);
+    }
+    .empire-card.t3 .empire-qty  { color: #8A5A00; }
+    .empire-card.t3 .empire-name { color: #AA7800; }
+    /* Tier 4 — royal (50+) */
+    .empire-card.t4 {
+      background: linear-gradient(155deg, #FFF9CC, #FFCA28);
+      border-color: #F0A800;
+      box-shadow: 0 4px 22px rgba(240,168,0,0.5);
+      animation: cardRoyal 2.2s ease-in-out infinite;
+    }
+    .empire-card.t4 .empire-qty  { color: #7A4800; }
+    .empire-card.t4 .empire-name { color: #8A5500; }
+    @keyframes cardRoyal {
+      0%, 100% { box-shadow: 0 4px 22px rgba(240,168,0,0.5); }
+      50%       { box-shadow: 0 4px 32px rgba(240,168,0,0.75); }
+    }
+
+    /* Scrollbar style */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ===== Cookie Clicker-inspired 3-column override ===== */
+    body {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(120,180,255,0.14), transparent 48%),
+        radial-gradient(circle at 80% 85%, rgba(89,122,200,0.14), transparent 45%),
+        repeating-linear-gradient(
+          90deg,
+          #0b2a4a 0,
+          #0b2a4a 28px,
+          #123a66 28px,
+          #123a66 56px
+        );
+    }
+    body::before { display: none; }
+
+    #app {
+      display: grid;
+      grid-template-columns: minmax(280px, 26vw) minmax(420px, 1fr) minmax(320px, 27vw);
+      height: 100vh;
+      gap: 0;
+    }
+
+    #left-panel, #center-panel, #right-panel {
+      border: 6px solid #4f2c17;
+      border-top-width: 8px;
+      border-bottom-width: 8px;
+      background:
+        linear-gradient(180deg, rgba(245,253,255,0.06), rgba(55,97,158,0.04)),
+        repeating-linear-gradient(
+          90deg,
+          #143962 0,
+          #143962 28px,
+          #1a497b 28px,
+          #1a497b 56px
+        );
+      box-shadow: inset 0 0 0 2px #9d714c;
+      color: #ebf7ff;
+    }
+
+    #left-panel {
+      width: auto;
+      min-width: 0;
+      border-right-width: 4px;
+      padding: 18px 12px 16px;
+      gap: 12px;
+      align-items: stretch;
+      justify-content: flex-start;
+      overflow-y: auto;
+    }
+    #game-title, #game-subtitle { display: none; }
+
+    #stats-box, #news-box, #stats-detail {
+      background: rgba(3,16,35,0.58);
+      border-color: #8d6342;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      color: #ecf3ff;
+    }
+
+    #stat-mini-cookies {
+      color: #ffffff;
+      font-size: 2rem;
+      text-align: center;
+      line-height: 1;
+    }
+    #stat-mini-total, #stat-mini-cps, #stat-mini-click,
+    #stat-label, .stat-label, #news-text, .bld-desc, .bld-stat {
+      color: #ccdcf1;
+    }
+    #stat-mini-total, #stat-mini-cps, #stat-mini-click { text-align: center; }
+
+    #cat-zone {
+      justify-content: center;
+      flex: initial;
+      min-height: 0;
+    }
+    #cat-wrap {
+      width: min(24vw, 320px);
+      height: min(24vw, 320px);
+      max-width: 320px;
+      max-height: 320px;
+      margin: 0 auto;
+    }
+    #paws-orbit {
+      position: absolute;
+      inset: -10%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .paw-cursor {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform:
+        translate(-50%, -50%)
+        rotate(var(--ang))
+        translateY(calc(-1 * var(--rad)))
+        rotate(180deg);
+      transform-origin: center;
+      width: var(--size);
+      height: var(--size);
+      display: block;
+      border-radius: 50%;
+      background: transparent;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4));
+      opacity: 0.97;
+      user-select: none;
+    }
+    .paw-cursor::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 28% 30%, rgba(244, 248, 255, 0.98) 0 11%, transparent 12%),
+        radial-gradient(circle at 47% 22%, rgba(244, 248, 255, 0.98) 0 10.5%, transparent 11.5%),
+        radial-gradient(circle at 66% 30%, rgba(244, 248, 255, 0.98) 0 11%, transparent 12%),
+        radial-gradient(circle at 79% 43%, rgba(244, 248, 255, 0.95) 0 9.2%, transparent 10.2%),
+        radial-gradient(ellipse 38% 30% at 52% 70%, rgba(236, 244, 255, 0.96) 0 55%, transparent 58%);
+      filter: drop-shadow(0 0 2px rgba(14, 30, 56, 0.6));
+      transform: rotate(var(--inner-tilt));
+      transform-origin: center;
+    }
+    .paw-cursor.paw-click {
+      animation: pawTap 0.22s ease-out;
+    }
+    @keyframes pawTap {
+      0% {
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--ang))
+          translateY(calc(-1 * var(--rad)))
+          rotate(calc(-1 * var(--ang)))
+          scale(1);
+      }
+      50% {
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--ang))
+          translateY(calc(-1 * var(--rad) + var(--tap-shift)))
+          rotate(180deg)
+          scale(var(--tap-scale));
+      }
+      100% {
+        transform:
+          translate(-50%, -50%)
+          rotate(var(--ang))
+          translateY(calc(-1 * var(--rad)))
+          rotate(180deg)
+          scale(1);
+      }
+    }
+    #cat-glow {
+      width: 84%;
+      height: 84%;
+      background: radial-gradient(circle, rgba(214,243,255,0.55) 0%, rgba(126,180,255,0.3) 52%, transparent 72%);
+    }
+    #cat-btn {
+      width: 82%;
+      height: 82%;
+      z-index: 3;
+      filter: drop-shadow(0 8px 30px rgba(137,198,255,0.32));
+    }
+    #cat-btn.cat-hit {
+      animation: catHit 0.2s ease-out !important;
+    }
+    @keyframes catHit {
+      0% { transform: scale(1); }
+      40% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    #center-counter {
+      text-align: center;
+      background: rgba(4,14,28,0.42);
+      border: 2px solid #8f6645;
+      border-radius: 12px;
+      padding: 10px;
+    }
+    #cookies-display {
+      font-size: 2.7rem;
+      color: #ffffff;
+      background: none;
+      -webkit-text-fill-color: initial;
+      text-shadow: 0 2px 0 #3c2516;
+    }
+    #cookies-total, #click-power-display { color: #c8d9f0; }
+    #cps-display {
+      color: #f2f8ff;
+      background: rgba(137,198,255,0.15);
+      border: 1.5px solid rgba(198,230,255,0.34);
+    }
+
+    #center-panel {
+      min-width: 0;
+      padding: 0;
+      gap: 0;
+      align-items: stretch;
+      border-left-width: 4px;
+      border-right-width: 4px;
+      overflow: hidden;
+    }
+    .panel-header, #shop-header {
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 900;
+      font-family: Georgia, 'Times New Roman', serif;
+      color: #f8f2de;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.35)),
+        repeating-linear-gradient(
+          90deg,
+          #1a406d 0,
+          #1a406d 28px,
+          #205081 28px,
+          #205081 56px
+        );
+      border-bottom: 4px solid #4f2c17;
+      text-shadow: 0 2px 0 #3d2514;
+      letter-spacing: 0.02em;
+    }
+
+    #upgrades-panel {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 12px 12px 10px;
+      background: rgba(6,17,34,0.36);
+    }
+    #upgrades-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .upg-category {
+      border: 2px solid #845a3a;
+      border-radius: 10px;
+      background: rgba(0,0,0,0.25);
+      padding: 8px;
+    }
+    .upg-title {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: #ffe8bf;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 7px;
+      text-align: center;
+    }
+    .upg-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    #upgrades-empty {
+      color: #cbd9ec;
+      font-style: italic;
+      font-size: 0.88rem;
+      text-align: center;
+      padding: 10px 4px 2px;
+      display: none;
+    }
+
+    .upgrade-btn {
+      width: 58px;
+      height: 58px;
+      background: rgba(240,247,255,0.95);
+    }
+
+    #news-box {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      padding: 10px 12px;
+    }
+    #news-text {
+      font-size: 0.88rem;
+      text-align: center;
+      font-style: normal;
+    }
+
+    #stats-detail {
+      margin: 0 10px 10px;
+    }
+    .stat-row {
+      border-bottom-color: rgba(188,220,255,0.2);
+    }
+    .stat-value { color: #f6f8ff; }
+
+    #empire-section {
+      margin: 0 10px 10px;
+      max-width: none;
+    }
+    #empire-label, .section-label { color: #d9e9ff; }
+    .empire-card {
+      background: rgba(246,251,255,0.93);
+      border-color: #916949;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 0 10px 10px;
+    }
+    .btn {
+      width: 100%;
+      background: rgba(9,29,58,0.72);
+      border: 1px solid #8e6444;
+      color: #ecf3ff;
+      padding: 7px 8px;
+      font-size: 0.8rem;
+    }
+    .btn-primary, .btn-ghost {
+      background: rgba(9,29,58,0.72);
+      box-shadow: none;
+      text-shadow: none;
+    }
+    .btn:hover {
+      background: rgba(21,50,88,0.95);
+    }
+
+    #right-panel {
+      width: auto;
+      min-width: 0;
+      border-left-width: 4px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(6,14,28,0.62), rgba(3,9,18,0.7)),
+        repeating-linear-gradient(90deg, #0c1f3a 0, #0c1f3a 28px, #102b4f 28px, #102b4f 56px);
+    }
+    #shop-header { border-bottom: 4px solid #4f2c17; }
+    #shop-intro {
+      padding: 10px 12px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      text-align: center;
+      color: #d7e7fb;
+      border-bottom: 2px solid #6e4a30;
+      background: rgba(0,0,0,0.22);
+    }
+    #buildings-list { overflow-y: auto; }
+    .bld-item {
+      border-bottom: 1px solid rgba(149,190,243,0.2);
+    }
+    .bld-item:hover {
+      background: linear-gradient(90deg, rgba(147,186,246,0.22), rgba(147,186,246,0.06));
+    }
+    .bld-name { color: #f5f9ff; }
+    .bld-qty { color: #eaf5ff; }
+    .bld-cost { color: #ffd29c; }
+
+    @media (max-width: 1180px) {
+      #app {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: 100vh;
+      }
+      #left-panel, #center-panel, #right-panel {
+        border-left-width: 6px;
+        border-right-width: 6px;
+        min-height: auto;
+      }
+      #left-panel {
+        border-bottom-width: 4px;
+      }
+      #right-panel {
+        border-top-width: 4px;
+      }
+      .action-row {
+        grid-template-columns: 1fr;
+      }
+      #cat-wrap {
+        width: min(58vw, 300px);
+        height: min(58vw, 300px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Effect bar (golden fish active) -->
+<div id="effect-bar"></div>
+
+<!-- Golden fish -->
+<div id="golden-fish" onclick="collectGoldenFish()">🐟</div>
+
+<!-- Particles & toasts -->
+<div id="toast-wrap"></div>
+
+<div id="app">
+
+  <!-- ══ LEFT PANEL ══ -->
+  <div id="left-panel">
+    <div id="stats-box">
+      <div id="stat-mini-cookies">0 croquettes</div>
+      <div id="stat-mini-total">Total : 0 croquettes</div>
+      <div id="stat-mini-cps">0 croquettes / sec</div>
+      <div id="stat-mini-click">1 croquette par clic</div>
+    </div>
+
+    <div id="cat-zone">
+      <div id="cat-wrap">
+        <div id="cat-glow"></div>
+        <div id="paws-orbit" aria-hidden="true"></div>
+        <img id="cat-btn"
+             src="ChatGPT Image Mar 6, 2026, 08_49_57 PM.png"
+             alt="Cliquez sur le chat"
+             onclick="handleCatClick(event)"
+             draggable="false"/>
+      </div>
+    </div>
+
+    <div id="center-counter">
+      <div id="cookies-display">0 croquettes</div>
+      <div id="cookies-total">Total : 0 croquettes englouties</div>
+      <div id="cps-display">0 croquettes / sec</div>
+      <div id="click-power-display">1 croquette par clic</div>
+    </div>
+  </div>
+
+  <!-- ══ CENTER PANEL ══ -->
+  <div id="center-panel">
+    <div class="panel-header">Améliorations</div>
+
+    <div id="upgrades-panel">
+      <div id="upgrades-categories"></div>
+      <div id="upgrades-empty">
+        Achetez votre première Patte de velours pour débloquer des améliorations…
+      </div>
+    </div>
+
+    <div id="news-box">
+      <div id="news-text">Les croquettes tombent du ciel. Les chats s'en réjouissent bruyamment.</div>
+    </div>
+
+    <div id="stats-detail">
+      <div class="stat-row">
+        <span class="stat-label">Croquettes actuelles</span>
+        <span class="stat-value" id="stat-current">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Total englouti</span>
+        <span class="stat-value" id="stat-total">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Croquettes / sec</span>
+        <span class="stat-value" id="stat-cps">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Puissance du clic</span>
+        <span class="stat-value" id="stat-click">1</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Améliorations achetées</span>
+        <span class="stat-value" id="stat-upgrades">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Bâtiments possédés</span>
+        <span class="stat-value" id="stat-buildings">0</span>
+      </div>
+    </div>
+
+    <div id="empire-section">
+      <div id="empire-label">🏡 Votre domaine félin</div>
+      <div id="empire-grid"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="saveGame()">💾 Sauvegarder</button>
+      <button class="btn btn-ghost" id="mute-btn" onclick="toggleMute()">🔊 Musique</button>
+      <button class="btn btn-ghost" onclick="resetGame()">🔄 Recommencer</button>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <div id="right-panel">
+    <div id="shop-header">🏪 Boutique Féline</div>
+    <div id="shop-intro">
+      Achète des bâtiments pour produire automatiquement des croquettes et débloquer de nouvelles améliorations.
+    </div>
+    <div id="buildings-list"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+
+const BUILDINGS = [
+  { id: 0, name: 'Patte de velours',   icon: '🐾', baseCost: 15,           baseCps: 0.1,
+    desc: 'Une douce patte qui bat délicatement les croquettes vers vous.' },
+  { id: 1, name: 'Chaton curieux',     icon: '😸', baseCost: 100,          baseCps: 0.5,
+    desc: 'Un adorable chaton qui chasse les croquettes partout dans la maison.' },
+  { id: 2, name: 'Champ de cataire',   icon: '🌿', baseCost: 1100,         baseCps: 4,
+    desc: 'Un luxuriant champ de catnip qui attire les croquettes par magie herbale.' },
+  { id: 3, name: 'Griffoir magique',   icon: '🪵', baseCost: 12000,        baseCps: 10,
+    desc: 'Les chats griffent sans relâche pour déterrer des croquettes enfouies.' },
+  { id: 4, name: 'Tour à chats',       icon: '🏰', baseCost: 130000,       baseCps: 40,
+    desc: 'Une imposante tour multi-niveaux où des dizaines de chats produisent des croquettes.' },
+  { id: 5, name: 'Café des Matous',    icon: '☕', baseCost: 1400000,      baseCps: 100,
+    desc: 'Un café parisien tenu par des chats en tablier, servant des croquettes à la pelle.' },
+  { id: 6, name: 'Temple Félin',       icon: '⛩️', baseCost: 20000000,     baseCps: 260,
+    desc: 'D\'antiques chats prêtres vénèrent la déesse Croquette et récoltent ses offrandes.' },
+  { id: 7, name: 'Chat Sorcier',       icon: '🧙', baseCost: 330000000,    baseCps: 1600,
+    desc: 'Un mystérieux chat en cape qui invoque des croquettes depuis les dimensions parallèles.' },
+  { id: 8, name: 'Chat de l\'Espace',  icon: '🚀', baseCost: 5100000000,   baseCps: 8888,
+    desc: 'Des chats astronautes qui récoltent des croquettes cosmiques dans les étoiles.' },
+  { id: 9, name: 'Chaton Quantique',   icon: '⚛️', baseCost: 75000000000,  baseCps: 47777,
+    desc: 'Un chaton qui existe simultanément dans tous les états de croquette possibles.' },
+];
+
+// Cat evolution visuals:
+// The game keeps the highest unlocked visual (based on owned building qty >= 1).
+const CAT_BASE_IMAGE = 'ChatGPT Image Mar 6, 2026, 08_49_57 PM.png';
+const CAT_EVOLUTIONS = [
+  { buildingId: 1, image: 'Chaton curieux.png' },
+  { buildingId: 2, image: 'Champ de cataire.png' },
+  { buildingId: 3, image: 'Griffoir magique.png' },
+  { buildingId: 4, image: 'Tour à chats.png' },
+  { buildingId: 5, image: 'Café des Matous.png' },
+];
+
+let lastValidCatImage = CAT_BASE_IMAGE;
+let pawClickCarry = 0;
+let pawOrbitCount = -1;
+
+function setupCatImageFallback() {
+  const catBtn = document.getElementById('cat-btn');
+  if (!catBtn) return;
+  lastValidCatImage = catBtn.getAttribute('src') || CAT_BASE_IMAGE;
+
+  catBtn.addEventListener('load', () => {
+    lastValidCatImage = catBtn.getAttribute('src') || lastValidCatImage;
+  });
+
+  catBtn.addEventListener('error', () => {
+    // Keep the latest working version if one configured image is missing.
+    if (catBtn.getAttribute('src') !== lastValidCatImage) {
+      catBtn.src = lastValidCatImage;
+    }
+  });
+}
+
+function getBestCatEvolutionImage() {
+  let best = CAT_BASE_IMAGE;
+  CAT_EVOLUTIONS.forEach((evo) => {
+    if ((G.bld[evo.buildingId]?.qty || 0) >= 1) best = evo.image;
+  });
+  return best;
+}
+
+function renderCatEvolution() {
+  const catBtn = document.getElementById('cat-btn');
+  if (!catBtn) return;
+  const target = getBestCatEvolutionImage();
+  if (catBtn.getAttribute('src') === target) return;
+  catBtn.src = target;
+}
+
+function getPawOrbitCount() {
+  const qty = G.bld[0]?.qty || 0;
+  if (qty <= 0) return 0;
+  return Math.min(qty, 120);
+}
+
+function getPawOrbitLayout(count, orbitSize) {
+  if (count <= 0) return [];
+
+  const ringOneRadius = orbitSize * 0.33;
+  const ringTwoRadius = orbitSize * 0.46;
+  const ringOneCount = count <= 60 ? count : 60;
+  const ringTwoCount = count > 60 ? count - 60 : 0;
+  const ringOneSize = count <= 24 ? 28 : count <= 60 ? 24 : 21;
+  const ringTwoSize = 18;
+  const result = [];
+
+  for (let i = 0; i < ringOneCount; i++) {
+    result.push({
+      ring: 1,
+      idx: i,
+      ringCount: ringOneCount,
+      radius: ringOneRadius,
+      size: ringOneSize,
+    });
+  }
+
+  for (let i = 0; i < ringTwoCount; i++) {
+    result.push({
+      ring: 2,
+      idx: i,
+      ringCount: ringTwoCount,
+      radius: ringTwoRadius,
+      size: ringTwoSize,
+    });
+  }
+
+  return result;
+}
+
+function renderPawOrbit() {
+  const orbit = document.getElementById('paws-orbit');
+  if (!orbit) return;
+  const count = getPawOrbitCount();
+  if (count === pawOrbitCount) return;
+
+  pawOrbitCount = count;
+  orbit.innerHTML = '';
+  if (count <= 0) return;
+
+  const orbitSize = orbit.getBoundingClientRect().width || 300;
+  const pawLayout = getPawOrbitLayout(count, orbitSize);
+  pawLayout.forEach((cfg) => {
+    const paw = document.createElement('div');
+    paw.className = 'paw-cursor';
+    paw.dataset.ring = String(cfg.ring);
+    paw.style.setProperty('--ang', `${(360 / cfg.ringCount) * cfg.idx}deg`);
+    paw.style.setProperty('--rad', `${cfg.radius}px`);
+    paw.style.setProperty('--size', `${cfg.size}px`);
+    paw.style.setProperty('--inner-tilt', `${cfg.ring === 1 ? 0 : 8}deg`);
+    paw.style.setProperty('--tap-shift', `${cfg.ring === 1 ? 9 : 7}px`);
+    paw.style.setProperty('--tap-scale', `${cfg.ring === 1 ? 1.16 : 1.13}`);
+    orbit.appendChild(paw);
+  });
+}
+
+function triggerPawAutoClickAnimation() {
+  const orbit = document.getElementById('paws-orbit');
+  if (!orbit) return;
+  const paws = orbit.querySelectorAll('.paw-cursor');
+  if (paws.length === 0) return;
+
+  const target = paws[Math.floor(Math.random() * paws.length)];
+  target.classList.remove('paw-click');
+  void target.offsetWidth;
+  target.classList.add('paw-click');
+  setTimeout(() => target.classList.remove('paw-click'), 220);
+
+  triggerCatAnim('cat-hit', 200);
+}
+
+function performAutoPawClick() {
+  const power = computeClickPower();
+  G.cookies += power;
+  G.total += power;
+
+  const catBtn = document.getElementById('cat-btn');
+  if (catBtn) {
+    const r = catBtn.getBoundingClientRect();
+    spawnParticle(r.left + r.width * (0.45 + Math.random() * 0.1), r.top + r.height * (0.38 + Math.random() * 0.16));
+  }
+  triggerPawAutoClickAnimation();
+}
+
+// Per-building upgrade names (4 tiers each)
+const BLD_UPG_NAMES = [
+  ['Coussinets moelleux',    'Patte véloce',         'Griffe de velours',    'Patte bénie des dieux'],
+  ['Chaton espiègle',        'Ronronnement amplifié','Pelage lustré',         'Chaton prodige'],
+  ['Cataire Bio',            'Terreau fertile',      'Rosée de catnip',       'Cataire arcane'],
+  ['Griffes acérées',        'Bois enchanté',        'Griffoir doré',         'Griffoir ancestral'],
+  ['Étage supplémentaire',   'Hamac en soie',        'Tour renforcée',        'Tour légendaire'],
+  ['Café spécial',           'Barista expert',       'Menu gourmet',          'Café étoilé Michelin'],
+  ['Prières intenses',       'Offrandes dorées',     'Rituel sacré',          'Bénédiction divine'],
+  ['Grimoire de base',       'Baguette en os',       'Sort amplifié',         'Magie ancestrale'],
+  ['Fusée améliorée',        'Combinaison spatiale', 'Warp drive félin',      'Hypervitesse ronron'],
+  ['Superposition féline',   'Intrication de poils', 'Tunnel quantique',      'Chat de Schrödinger²'],
+];
+const BLD_UPG_REQS        = [1,   5,   25,   50];   // min qty required
+const BLD_UPG_COST_MULT   = [1,   5,   50,  500];   // × building base cost
+
+// Build all upgrade definitions
+const ALL_UPGRADES = (() => {
+  const list = [];
+
+  // Click upgrades
+  list.push({
+    id: 'c0', name: 'Griffes aiguisées', icon: '🐾',
+    desc: 'Vos griffes s\'affûtent sur le parquet. +1 croquette par clic.',
+    cost: 100,
+    condition: s => s.bld[0].qty >= 1,
+    effect:    s => { s.clickBonus += 1; },
+  });
+  list.push({
+    id: 'c1', name: 'Pattes expertes', icon: '✋',
+    desc: 'Vos pattes habiles récoltent 1 % des croquettes/sec à chaque clic.',
+    cost: 2000,
+    condition: s => s.bld[0].qty >= 10,
+    effect:    s => { s.clickCpsPct += 0.01; },
+  });
+  list.push({
+    id: 'c2', name: 'Coup de patte légendaire', icon: '⚡',
+    desc: 'Un coup phénoménal ! +5 % des croquettes/sec s\'ajoute à chaque clic.',
+    cost: 50000,
+    condition: s => s.bld[0].qty >= 25,
+    effect:    s => { s.clickCpsPct += 0.05; },
+  });
+
+  // Building upgrades
+  BUILDINGS.forEach((b, bi) => {
+    BLD_UPG_REQS.forEach((req, tier) => {
+      list.push({
+        id: `b${bi}_t${tier}`,
+        name: BLD_UPG_NAMES[bi][tier],
+        icon: b.icon,
+        desc: `Améliore "${b.name}" (niv. ${tier + 1}). Production ×2 pour ce bâtiment.`,
+        cost: Math.floor(b.baseCost * BLD_UPG_COST_MULT[tier]),
+        condition: s => s.bld[bi].qty >= req,
+        effect:    s => { s.bld[bi].mult *= 2; },
+        bldId: bi,
+        tier,
+      });
+    });
+  });
+
+  return list;
+})();
+
+// Short display names for empire cards
+const BLD_SHORT = ['Patte', 'Chaton', 'Cataire', 'Griffoir', 'Tour', 'Café', 'Temple', 'Sorcier', 'Spatial', 'Quantique'];
+
+// News headlines
+const NEWS = [
+  'Un chat a mangé 3 000 croquettes en une journée. Son propriétaire est en état de choc.',
+  'Les scientifiques découvrent que le ronronnement des chats produit de l\'énergie croquette.',
+  'Un chaton de 6 semaines brise le record mondial de production de croquettes. Mignon ET efficace.',
+  'La bourse des croquettes atteint un niveau historique. Les chats exultent en silence.',
+  'Étude : 94 % des chats préfèrent les croquettes aux caresses. Les 6 % restants mentent.',
+  'Un chat sorcier aperçu dans le quartier. Les croquettes ont mystérieusement triplé.',
+  'La Gazette rapporte : les croquettes quantiques existent dans deux dimensions à la fois.',
+  'Message du Chat de l\'Espace : "Il y a des croquettes sur Mars. Envoyez plus de chats."',
+  'Alerte météo : tempête de croquettes prévue ce soir. Les chats conseillent de rester à l\'intérieur.',
+  'Le temple félin célèbre ses 10 000 ans de production. Les prêtres ronronnent de satisfaction.',
+  'Le café des Matous étoilé au Michelin pour la 3e année. Le secret ? Des croquettes premium.',
+  'Découverte archéologique : des croquettes vieilles de 5 000 ans retrouvées intactes. Les chats les ont mangées.',
+  'Un chaton quantique a été observé manger et ne pas manger une croquette simultanément. Les physiciens sont déconcertés.',
+  'Le Chat Sorcier refuse de révéler sa formule secrète. "Les croquettes, c\'est magique", répond-il.',
+  'Nouveau record : 1 million de croquettes produites en une seconde. Les humains sont jaloux.',
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+
+let G = {
+  cookies:     0,
+  total:       0,
+  clickBonus:  0,  // flat bonus per click
+  clickCpsPct: 0,  // fraction of CPS added per click
+  bld: BUILDINGS.map(() => ({ qty: 0, mult: 1 })),
+  upg: ALL_UPGRADES.map(u => ({ id: u.id, bought: false })),
+  fx: null,      // 'cps_boost' | 'frenzy' | null
+  fxEnd: 0,
+  nextFish: 0,
+  newsIdx: 0,
+  milestoneIdx: 0,
+};
+
+// ═══════════════════════════════════════════════════════════════
+// COMPUTED
+// ═══════════════════════════════════════════════════════════════
+
+function computePassiveCps() {
+  let cps = 0;
+  BUILDINGS.forEach((b, i) => {
+    if (i === 0) return; // Patte de velours is represented as auto-clickers around the cat
+    cps += b.baseCps * G.bld[i].qty * G.bld[i].mult;
+  });
+  if (G.fx === 'cps_boost' && Date.now() < G.fxEnd) cps *= 7;
+  return cps;
+}
+
+function computePawAutoCps() {
+  let cps = BUILDINGS[0].baseCps * G.bld[0].qty * G.bld[0].mult;
+  if (G.fx === 'cps_boost' && Date.now() < G.fxEnd) cps *= 7;
+  return cps;
+}
+
+function computeCps() {
+  return computePassiveCps() + computePawAutoCps();
+}
+
+function computeClickPower() {
+  const cps = computeCps();
+  return 1 + G.clickBonus + cps * G.clickCpsPct;
+}
+
+function isBuildingUnlocked(id) {
+  if (id === 0) return true;
+  return (G.bld[id - 1]?.qty || 0) >= 1 || (G.bld[id]?.qty || 0) > 0;
+}
+
+function bldCost(id) {
+  return Math.ceil(BUILDINGS[id].baseCost * Math.pow(1.15, G.bld[id].qty));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FORMATTING
+// ═══════════════════════════════════════════════════════════════
+
+function fmt(n) {
+  n = Math.floor(n);
+  if (n < 1000)   return n.toLocaleString('fr');
+  if (n < 1e6)    return (n / 1e3).toFixed(1)  + '\u202fK';
+  if (n < 1e9)    return (n / 1e6).toFixed(2)  + '\u202fM';
+  if (n < 1e12)   return (n / 1e9).toFixed(2)  + '\u202fMrd';
+  if (n < 1e15)   return (n / 1e12).toFixed(2) + '\u202fBio';
+  return              (n / 1e15).toFixed(2) + '\u202fQua';
+}
+
+function fmtDec(n) {
+  if (n < 1000) return n.toFixed(1);
+  return fmt(n);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+
+function renderStats() {
+  const cps   = computeCps();
+  const click = computeClickPower();
+  const now   = Date.now();
+
+  document.getElementById('cookies-display').textContent     = fmt(G.cookies) + ' croquettes';
+  document.getElementById('cookies-total').textContent       = 'Total : ' + fmt(G.total) + ' croquettes englouties';
+  document.getElementById('cps-display').textContent         = fmtDec(cps) + ' croquettes / sec';
+  document.getElementById('click-power-display').textContent = fmtDec(click) + ' croquette par clic';
+
+  // Mini stats in left panel
+  document.getElementById('stat-mini-cookies').textContent = fmt(G.cookies) + ' croquettes';
+  document.getElementById('stat-mini-total').textContent   = 'Total : ' + fmt(G.total);
+  document.getElementById('stat-mini-cps').textContent     = fmtDec(cps) + ' / sec';
+  document.getElementById('stat-mini-click').textContent   = fmtDec(click) + ' par clic';
+
+  document.getElementById('stat-current').textContent   = fmt(G.cookies);
+  document.getElementById('stat-total').textContent     = fmt(G.total);
+  document.getElementById('stat-cps').textContent       = fmtDec(cps);
+  document.getElementById('stat-click').textContent     = fmtDec(click);
+  document.getElementById('stat-upgrades').textContent  = G.upg.filter(u => u.bought).length;
+  document.getElementById('stat-buildings').textContent = G.bld.reduce((s, b) => s + b.qty, 0);
+
+  document.title = '🐱 ' + fmt(G.cookies) + ' croquettes – Ronron Clicker';
+
+  // Effect bar
+  const bar = document.getElementById('effect-bar');
+  if (G.fx && now < G.fxEnd) {
+    bar.style.display = 'block';
+    const secs = Math.ceil((G.fxEnd - now) / 1000);
+    if (G.fx === 'cps_boost')
+      bar.textContent = '🐟 Poisson Doré actif ! Production ×7 — ' + secs + ' s restantes';
+    else
+      bar.textContent = '🌟 Tempête de Croquettes ! — ' + secs + ' s restantes';
+  } else {
+    bar.style.display = 'none';
+    if (G.fx && now >= G.fxEnd) G.fx = null;
+  }
+}
+
+function renderUpgrades() {
+  const wrap  = document.getElementById('upgrades-categories');
+  const empty = document.getElementById('upgrades-empty');
+  if (!wrap || !empty) return;
+  wrap.innerHTML = '';
+
+  const available = [];
+  ALL_UPGRADES.forEach((upg, idx) => {
+    if (G.upg[idx].bought) return;
+    if (!upg.condition(G))  return;
+    available.push({ upg, idx });
+  });
+
+  if (available.length === 0) {
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+
+  const categoryMap = new Map();
+  const ensureCategory = (key, title) => {
+    if (!categoryMap.has(key)) categoryMap.set(key, { title, items: [] });
+    return categoryMap.get(key);
+  };
+
+  ensureCategory('click', 'Pouvoir du clic');
+  BUILDINGS.forEach((b, i) => ensureCategory('bld_' + i, b.name));
+
+  available.forEach(({ upg, idx }) => {
+    const key = typeof upg.bldId === 'number' ? 'bld_' + upg.bldId : 'click';
+    ensureCategory(key, upg.bldId != null ? BUILDINGS[upg.bldId].name : 'Pouvoir du clic').items.push({ upg, idx });
+  });
+
+  categoryMap.forEach((cat) => {
+    if (cat.items.length === 0) return;
+    const sec = document.createElement('section');
+    sec.className = 'upg-category';
+
+    const title = document.createElement('div');
+    title.className = 'upg-title';
+    title.textContent = cat.title;
+    sec.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'upg-grid';
+
+    cat.items.forEach(({ upg, idx }) => {
+    const canAfford = G.cookies >= upg.cost;
+    const btn = document.createElement('div');
+    btn.className = 'upgrade-btn' + (canAfford ? '' : ' cant-afford');
+    btn.dataset.idx = idx;
+    btn.innerHTML = `
+      <span>${upg.icon}</span>
+      <div class="tip">
+        <span class="tip-name">${upg.name}</span>
+        ${upg.desc}
+        <span class="tip-cost">Coût : ${fmt(upg.cost)} 🐾</span>
+      </div>
+    `;
+    // Always attach — the handler checks affordability itself
+    btn.addEventListener('click', () => {
+      if (G.cookies >= ALL_UPGRADES[idx].cost && !G.upg[idx].bought) buyUpgrade(idx);
+    });
+    grid.appendChild(btn);
+    });
+
+    sec.appendChild(grid);
+    wrap.appendChild(sec);
+  });
+}
+
+function renderBuildings() {
+  const list = document.getElementById('buildings-list');
+  list.innerHTML = '';
+
+  BUILDINGS.forEach((b, i) => {
+    const qty    = G.bld[i].qty;
+    const cost   = bldCost(i);
+    const unlocked = isBuildingUnlocked(i);
+    const afford = G.cookies >= cost;
+    const cps    = b.baseCps * G.bld[i].mult;
+    const totalC = cps * qty;
+
+    const div = document.createElement('div');
+    div.className = 'bld-item ' + (!unlocked ? 'bld-locked' : (afford ? 'bld-affordable' : 'bld-unaffordable'));
+    div.dataset.bldId = i;
+
+    div.innerHTML = `
+      <div class="bld-icon">${b.icon}</div>
+      <div class="bld-info">
+        <div class="bld-name">${b.name}</div>
+        <div class="bld-desc">${b.desc}</div>
+        <div class="bld-stat">${qty > 0 ? fmtDec(totalC) + ' 🐾/sec total' : 'Aucun pour l\'instant'}</div>
+      </div>
+      <div class="bld-right">
+        <div class="bld-qty">${qty}</div>
+        <div class="bld-cost" style="color:${afford ? 'var(--accent)' : 'var(--disabled)'}">
+          ${fmt(cost)} 🐾
+        </div>
+      </div>
+      <div class="bld-tip">
+        <div class="bld-tip-name">${b.name}</div>
+        ${b.desc}<br>
+        <span style="color:var(--highlight)">Produit : ${fmtDec(cps)} 🐾/sec chacun</span><br>
+        <span style="color:var(--highlight)">Coût : ${fmt(cost)} 🐾</span>
+      </div>
+    `;
+
+    // Always attach — the handler checks affordability itself
+    div.addEventListener('click', () => {
+      if (isBuildingUnlocked(i) && G.cookies >= bldCost(i)) buyBuilding(i);
+    });
+    list.appendChild(div);
+  });
+}
+
+// Lightweight per-tick update — no DOM rebuilding, just class/text changes
+function updateAffordability() {
+  document.querySelectorAll('.bld-item[data-bld-id]').forEach(el => {
+    const i    = parseInt(el.dataset.bldId);
+    const cost = bldCost(i);
+    const unlocked = isBuildingUnlocked(i);
+    const can  = G.cookies >= cost;
+    el.classList.toggle('bld-locked', !unlocked);
+    el.classList.toggle('bld-affordable', unlocked && can);
+    el.classList.toggle('bld-unaffordable', unlocked && !can);
+    const costEl = el.querySelector('.bld-cost');
+    if (costEl) {
+      costEl.textContent  = fmt(cost) + ' 🐾';
+      costEl.style.color  = unlocked ? (can ? 'var(--accent)' : 'var(--disabled)') : 'transparent';
+    }
+  });
+  document.querySelectorAll('.upgrade-btn[data-idx]').forEach(el => {
+    const can = G.cookies >= ALL_UPGRADES[parseInt(el.dataset.idx)].cost;
+    el.classList.toggle('cant-afford', !can);
+  });
+}
+
+function renderEmpire() {
+  const grid    = document.getElementById('empire-grid');
+  const section = document.getElementById('empire-section');
+  if (!grid || !section) return;
+
+  grid.innerHTML = '';
+  let anyOwned = false;
+
+  BUILDINGS.forEach((b, i) => {
+    const qty = G.bld[i].qty;
+    if (qty === 0) return;
+    anyOwned = true;
+
+    const tier    = qty >= 50 ? 4 : qty >= 25 ? 3 : qty >= 5 ? 2 : 1;
+    const cps     = b.baseCps * G.bld[i].mult * qty;
+    const badge   = tier === 4 ? '👑' : tier === 3 ? '✨' : tier === 2 ? '⭐' : '';
+
+    const card = document.createElement('div');
+    card.className = `empire-card t${tier}`;
+    card.title = `${b.name} — ${qty} possédé(s) — ${fmtDec(cps)} 🐾/sec`;
+    card.innerHTML = `
+      ${badge ? `<div class="empire-badge">${badge}</div>` : ''}
+      <div class="empire-icon">${b.icon}</div>
+      <div class="empire-qty">×${qty}</div>
+      <div class="empire-name">${BLD_SHORT[i]}</div>
+      <div class="empire-cps">${fmtDec(cps)}/s</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  section.style.display = anyOwned ? 'block' : 'none';
+}
+
+function renderAll() {
+  renderStats();
+  renderCatEvolution();
+  renderPawOrbit();
+  renderUpgrades();
+  renderBuildings();
+  renderEmpire();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// SOUNDS (Web Audio API — no external files needed)
+// ═══════════════════════════════════════════════════════════════
+
+let _audioCtx = null;
+function getACtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function playTone(freq, type, vol, duration, startDelay = 0) {
+  try {
+    const ctx  = getACtx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + startDelay);
+    gain.gain.setValueAtTime(vol, ctx.currentTime + startDelay);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startDelay + duration);
+    osc.start(ctx.currentTime + startDelay);
+    osc.stop(ctx.currentTime + startDelay + duration + 0.01);
+  } catch(e) {}
+}
+
+function sndClick()  { playTone(520, 'sine',     0.10, 0.08); playTone(380, 'sine', 0.05, 0.06, 0.05); }
+function sndBuy()    { playTone(523, 'triangle', 0.16, 0.22); playTone(659, 'triangle', 0.14, 0.22, 0.14); }
+function sndUpgrade(){ [523,659,784,1047].forEach((f,i) => playTone(f, 'sine', 0.13, 0.22, i*0.08)); }
+function sndFish()   { [784,1047,1319,1568].forEach((f,i) => playTone(f, 'triangle', 0.14, 0.35, i*0.10)); }
+
+// ═══════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════
+
+function handleCatClick(evt) {
+  const power = computeClickPower();
+  G.cookies += power;
+  G.total   += power;
+  spawnParticle(evt.clientX, evt.clientY);
+  sndClick();
+  triggerCatAnim('cat-squish', 380);
+}
+
+function buyBuilding(id) {
+  if (!isBuildingUnlocked(id)) return;
+  const cost = bldCost(id);
+  if (G.cookies < cost) return;
+  G.cookies -= cost;
+  G.bld[id].qty++;
+  sndBuy();
+  if (G.bld[id].qty === 1) toast('Premier(e) ' + BUILDINGS[id].name + ' acheté(e) ! 🐾');
+  renderAll();
+}
+
+function buyUpgrade(idx) {
+  const upg = ALL_UPGRADES[idx];
+  if (G.cookies < upg.cost || G.upg[idx].bought) return;
+  G.cookies -= upg.cost;
+  G.upg[idx].bought = true;
+  upg.effect(G);
+  sndUpgrade();
+  toast('Amélioration débloquée : ' + upg.name + ' ✨');
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GOLDEN FISH
+// ═══════════════════════════════════════════════════════════════
+
+function scheduleFish() {
+  // Random 3–8 minutes
+  const delay = (Math.random() * 300 + 180) * 1000;
+  G.nextFish = Date.now() + delay;
+}
+
+function checkFish() {
+  if (G.nextFish > 0 && Date.now() >= G.nextFish) {
+    G.nextFish = 0;
+    spawnFish();
+  }
+}
+
+function spawnFish() {
+  const el = document.getElementById('golden-fish');
+  const x  = Math.random() * (window.innerWidth  - 180) + 80;
+  const y  = Math.random() * (window.innerHeight - 180) + 80;
+  el.style.left    = x + 'px';
+  el.style.top     = y + 'px';
+  el.style.display = 'block';
+  // Auto-despawn after 13 s
+  setTimeout(() => {
+    if (el.style.display !== 'none') {
+      el.style.display = 'none';
+      scheduleFish();
+    }
+  }, 13000);
+}
+
+function collectGoldenFish() {
+  document.getElementById('golden-fish').style.display = 'none';
+  const cps  = computeCps();
+  const roll = Math.random();
+
+  if (roll < 0.34) {
+    const bonus = Math.max(cps * 777, 777);
+    G.cookies += bonus;
+    G.total   += bonus;
+    toast('🐟 Poisson Doré ! +' + fmt(bonus) + ' croquettes !');
+  } else if (roll < 0.67) {
+    G.fx    = 'cps_boost';
+    G.fxEnd = Date.now() + 77000;
+    sndFish();
+  toast('🐟 Poisson Doré ! Production ×7 pendant 77 secondes !');
+  } else {
+    const bonus = cps * 777 * 6;
+    G.cookies += bonus;
+    G.total   += bonus;
+    G.fx      = 'frenzy';
+    G.fxEnd   = Date.now() + 6000;
+    toast('🌟 Tempête de Croquettes ! +' + fmt(bonus) + ' croquettes !');
+  }
+
+  scheduleFish();
+  renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════════════
+
+const PAWS = ['🐾', '✨', '⭐', '🐱'];
+function spawnParticle(x, y) {
+  const el = document.createElement('div');
+  el.className   = 'particle';
+  el.textContent = PAWS[Math.floor(Math.random() * PAWS.length)];
+  el.style.left  = (x + (Math.random() - 0.5) * 40 - 9) + 'px';
+  el.style.top   = (y - 10) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOASTS & MILESTONES
+// ═══════════════════════════════════════════════════════════════
+
+function toast(msg) {
+  const wrap = document.getElementById('toast-wrap');
+  const el   = document.createElement('div');
+  el.className   = 'toast';
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.4s';
+    el.style.opacity    = '0';
+    setTimeout(() => el.remove(), 400);
+  }, 3000);
+}
+
+// ── Cat animation helper ──────────────────────────────────────────
+function triggerCatAnim(cls, duration) {
+  const btn = document.getElementById('cat-btn');
+  if (!btn) return;
+  btn.classList.remove('cat-squish', 'cat-wobble', 'cat-twitch', 'cat-hit');
+  // Force reflow so re-adding the same class restarts animation
+  void btn.offsetWidth;
+  btn.classList.add(cls);
+  setTimeout(() => btn.classList.remove(cls), duration);
+}
+
+// Periodic random ear-twitch
+(function scheduleTwitch() {
+  setTimeout(() => {
+    triggerCatAnim('cat-twitch', 450);
+    scheduleTwitch();
+  }, 7000 + Math.random() * 6000);
+})();
+
+const MILESTONES = [100, 1000, 10000, 100000, 1e6, 1e9, 1e12, 1e15];
+function checkMilestones() {
+  while (G.milestoneIdx < MILESTONES.length && G.total >= MILESTONES[G.milestoneIdx]) {
+    toast('🎉 ' + fmt(MILESTONES[G.milestoneIdx]) + ' croquettes englouties ! Impressionnant !');
+    triggerCatAnim('cat-wobble', 650);
+    G.milestoneIdx++;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEWS
+// ═══════════════════════════════════════════════════════════════
+
+function rotateNews() {
+  const el = document.getElementById('news-text');
+  el.style.transition = 'opacity 0.5s';
+  el.style.opacity    = '0';
+  setTimeout(() => {
+    G.newsIdx  = (G.newsIdx + 1) % NEWS.length;
+    el.textContent = NEWS[G.newsIdx];
+    el.style.opacity = '1';
+  }, 500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SAVE / LOAD / RESET
+// ═══════════════════════════════════════════════════════════════
+
+const SAVE_KEY = 'ronronclicker_v1';
+
+function saveGame(silent) {
+  const data = {
+    cookies:      G.cookies,
+    total:        G.total,
+    clickBonus:   G.clickBonus,
+    clickCpsPct:  G.clickCpsPct,
+    bld:          G.bld,
+    upg:          G.upg.map(u => ({ id: u.id, bought: u.bought })),
+    milestoneIdx: G.milestoneIdx,
+    newsIdx:      G.newsIdx,
+  };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  if (!silent) toast('💾 Sauvegarde effectuée ! Les chats sont rassurés.');
+}
+
+function loadGame() {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (!raw) return;
+  try {
+    const s = JSON.parse(raw);
+    G.cookies     = s.cookies     || 0;
+    G.total       = s.total       || 0;
+    G.clickBonus  = s.clickBonus  || 0;
+    G.clickCpsPct = s.clickCpsPct || 0;
+    if (s.bld) s.bld.forEach((b, i) => {
+      if (G.bld[i]) { G.bld[i].qty = b.qty || 0; G.bld[i].mult = b.mult || 1; }
+    });
+    if (s.upg) s.upg.forEach((u, i) => {
+      if (G.upg[i]) G.upg[i].bought = u.bought || false;
+    });
+    G.milestoneIdx = s.milestoneIdx || 0;
+    G.newsIdx      = s.newsIdx      || 0;
+    document.getElementById('news-text').textContent = NEWS[G.newsIdx % NEWS.length];
+  } catch(e) {
+    console.error('Erreur de chargement :', e);
+  }
+}
+
+function resetGame() {
+  if (!confirm('Tout recommencer depuis zéro ?\nLes chats seront très déçus... 😿')) return;
+  localStorage.removeItem(SAVE_KEY);
+  G = {
+    cookies: 0, total: 0, clickBonus: 0, clickCpsPct: 0,
+    bld: BUILDINGS.map(() => ({ qty: 0, mult: 1 })),
+    upg: ALL_UPGRADES.map(u => ({ id: u.id, bought: false })),
+    fx: null, fxEnd: 0, nextFish: 0, newsIdx: 0, milestoneIdx: 0,
+  };
+  scheduleFish();
+  renderAll();
+  toast('🔄 Réinitialisé. Les chats recommencent à zéro, la queue haute. 😸');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BACKGROUND MUSIC
+// ═══════════════════════════════════════════════════════════════
+
+const bgMusic = new Audio('Cozy Cookie Cats.mp3');
+bgMusic.loop   = true;
+bgMusic.volume = 0.4;
+
+// Browsers block autoplay until the user interacts — start on first click
+let musicStarted = false;
+function ensureMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+  bgMusic.play().catch(() => {});
+}
+document.addEventListener('click', ensureMusic, { once: true });
+
+function toggleMute() {
+  bgMusic.muted = !bgMusic.muted;
+  document.getElementById('mute-btn').textContent = bgMusic.muted ? '🔇 Musique' : '🔊 Musique';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAME LOOP
+// ═══════════════════════════════════════════════════════════════
+
+let lastTick = Date.now();
+
+function gameLoop() {
+  const now = Date.now();
+  const dt  = Math.min((now - lastTick) / 1000, 1); // cap at 1s
+  lastTick  = now;
+
+  // Passive production from non-clicker buildings.
+  const passiveGained = computePassiveCps() * dt;
+  G.cookies += passiveGained;
+  G.total   += passiveGained;
+
+  // Patte de velours acts like cursor clickers around the cat.
+  const pawCps = computePawAutoCps();
+  if (pawCps > 0) {
+    const clickPower = Math.max(computeClickPower(), 0.0001);
+    pawClickCarry += (pawCps / clickPower) * dt;
+
+    const maxClicksPerTick = 24;
+    let clicks = Math.min(maxClicksPerTick, Math.floor(pawClickCarry));
+    while (clicks > 0) {
+      performAutoPawClick();
+      pawClickCarry -= 1;
+      clicks--;
+    }
+  } else {
+    pawClickCarry = 0;
+  }
+
+  checkMilestones();
+  checkFish();
+  // Only lightweight updates in the loop — no DOM rebuilding
+  renderStats();
+  updateAffordability();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+
+setupCatImageFallback();
+loadGame();
+scheduleFish();
+renderAll();
+
+setInterval(gameLoop,   100);   // 10 ticks/sec
+setInterval(saveGame,   30000, true); // auto-save silent
+setInterval(rotateNews, 15000); // rotate headline
+</script>
+
+</body>
+</html>
