@@ -39,6 +39,7 @@ const CAT_EVOLUTIONS = [
 let lastValidCatImage = CAT_BASE_IMAGE;
 let pawClickCarry = 0;
 let pawOrbitCount = -1;
+let selectedBuyAmount = 1;
 
 function setupCatImageFallback() {
   const catBtn = document.getElementById('cat-btn');
@@ -308,6 +309,15 @@ function bldCost(id) {
   return Math.ceil(BUILDINGS[id].baseCost * Math.pow(1.15, G.bld[id].qty));
 }
 
+function bldBulkCost(id, amount) {
+  let total = 0;
+  const baseQty = G.bld[id].qty;
+  for (let i = 0; i < amount; i++) {
+    total += Math.ceil(BUILDINGS[id].baseCost * Math.pow(1.15, baseQty + i));
+  }
+  return total;
+}
+
 // ═══════════════════════════════════════════════════════════════
 // FORMATTING
 // ═══════════════════════════════════════════════════════════════
@@ -423,7 +433,7 @@ function renderBuildings() {
 
   BUILDINGS.forEach((b, i) => {
     const qty    = G.bld[i].qty;
-    const cost   = bldCost(i);
+    const cost   = bldBulkCost(i, selectedBuyAmount);
     const unlocked = isBuildingUnlocked(i);
     const afford = G.cookies >= cost;
     const cps    = b.baseCps * G.bld[i].mult;
@@ -443,20 +453,20 @@ function renderBuildings() {
       <div class="bld-right">
         <div class="bld-qty">${qty}</div>
         <div class="bld-cost" style="color:${afford ? 'var(--accent)' : 'var(--disabled)'}">
-          ${fmt(cost)} 🐾
+          x${selectedBuyAmount} ${fmt(cost)} 🐾
         </div>
       </div>
       <div class="bld-tip">
         <div class="bld-tip-name">${b.name}</div>
         ${b.desc}<br>
         <span style="color:var(--highlight)">Produit : ${fmtDec(cps)} 🐾/sec chacun</span><br>
-        <span style="color:var(--highlight)">Coût : ${fmt(cost)} 🐾</span>
+        <span style="color:var(--highlight)">Coût x${selectedBuyAmount} : ${fmt(cost)} 🐾</span>
       </div>
     `;
 
     // Always attach — the handler checks affordability itself
     div.addEventListener('click', () => {
-      if (isBuildingUnlocked(i) && G.cookies >= bldCost(i)) buyBuilding(i);
+      if (isBuildingUnlocked(i) && G.cookies >= bldBulkCost(i, selectedBuyAmount)) buyBuilding(i);
     });
     list.appendChild(div);
   });
@@ -466,7 +476,7 @@ function renderBuildings() {
 function updateAffordability() {
   document.querySelectorAll('.bld-item[data-bld-id]').forEach(el => {
     const i    = parseInt(el.dataset.bldId);
-    const cost = bldCost(i);
+    const cost = bldBulkCost(i, selectedBuyAmount);
     const unlocked = isBuildingUnlocked(i);
     const can  = G.cookies >= cost;
     el.classList.toggle('bld-locked', !unlocked);
@@ -474,7 +484,7 @@ function updateAffordability() {
     el.classList.toggle('bld-unaffordable', unlocked && !can);
     const costEl = el.querySelector('.bld-cost');
     if (costEl) {
-      costEl.textContent  = fmt(cost) + ' 🐾';
+      costEl.textContent  = `x${selectedBuyAmount} ${fmt(cost)} 🐾`;
       costEl.style.color  = unlocked ? (can ? 'var(--accent)' : 'var(--disabled)') : 'transparent';
     }
   });
@@ -595,13 +605,29 @@ function handleCatClick(evt) {
 
 function buyBuilding(id) {
   if (!isBuildingUnlocked(id)) return;
-  const cost = bldCost(id);
+  const amount = selectedBuyAmount;
+  const cost = bldBulkCost(id, amount);
   if (G.cookies < cost) return;
   G.cookies -= cost;
-  G.bld[id].qty++;
+  G.bld[id].qty += amount;
   sndBuy();
-  if (G.bld[id].qty === 1) toast('Premier(e) ' + BUILDINGS[id].name + ' acheté(e) ! 🐾');
+  if (G.bld[id].qty === amount) toast('Premier(e) ' + BUILDINGS[id].name + ' acheté(e) ! 🐾');
   renderAll();
+}
+
+function setupBuyAmountSelector() {
+  const row = document.getElementById('buy-amount-row');
+  if (!row) return;
+  row.querySelectorAll('.buy-step[data-buy]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      selectedBuyAmount = parseInt(btn.dataset.buy, 10) || 1;
+      row.querySelectorAll('.buy-step[data-buy]').forEach((el) => {
+        el.classList.toggle('active', el === btn);
+      });
+      renderBuildings();
+      updateAffordability();
+    });
+  });
 }
 
 function buyUpgrade(idx) {
@@ -926,6 +952,7 @@ window.advanceTime = (ms) => {
 setupCatImageFallback();
 loadGame();
 scheduleFish();
+setupBuyAmountSelector();
 renderAll();
 
 // Settings modal

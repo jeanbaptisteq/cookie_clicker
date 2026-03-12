@@ -110,3 +110,11 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
   - En cas de très grande quantité, affichage compact avec compteur `+N` en fin de ligne.
 - Validation locale:
   - Vue normale + test simulé (qty 50/22/14/8) montrant l'empilement horizontal par rangée dans le panneau central.
+- Feature ajoutée: sélection de quantité d'achat `1 / 10 / 100` dans la boutique.
+  - Les boutons sont maintenant interactifs (`data-buy`) avec état actif.
+  - Le coût affiché dans la boutique reflète la quantité sélectionnée (`xN coût total`).
+  - L'achat applique la quantité sélectionnée en une fois (`buyBuilding` en bulk).
+  - Le calcul de coût bulk additionne les paliers successifs (pricing exponentiel cohérent).
+- Validation fonctionnelle locale:
+  - Sélection `10` => achat donne `qty=10`.
+  - Sélection `100` ensuite => achat donne `qty=110`.
