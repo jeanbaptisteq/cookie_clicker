@@ -118,3 +118,6 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
 - Validation fonctionnelle locale:
   - Sélection `10` => achat donne `qty=10`.
   - Sélection `100` ensuite => achat donne `qty=110`.
+- Correction demandée sur la proportionnalité des achats bulk:
+  - `x10` et `x100` sont désormais strictement proportionnels à `x1` (coût linéaire).
+  - Validation locale: `c1=15`, `c10=150`, `c100=1500`, ratios 10 et 100 exacts.

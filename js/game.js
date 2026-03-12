@@ -310,12 +310,7 @@ function bldCost(id) {
 }
 
 function bldBulkCost(id, amount) {
-  let total = 0;
-  const baseQty = G.bld[id].qty;
-  for (let i = 0; i < amount; i++) {
-    total += Math.ceil(BUILDINGS[id].baseCost * Math.pow(1.15, baseQty + i));
-  }
-  return total;
+  return bldCost(id) * amount;
 }
 
 // ═══════════════════════════════════════════════════════════════
