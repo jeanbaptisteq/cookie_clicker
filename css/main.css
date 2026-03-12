@@ -59,6 +59,7 @@
       align-items: center;
       padding: 14px 13px;
       overflow-y: auto;
+      overflow-x: hidden;
       gap: 10px;
     }
 
@@ -783,6 +784,7 @@
       align-items: stretch;
       justify-content: flex-start;
       overflow-y: auto;
+      overflow-x: hidden;
     }
     #game-title, #game-subtitle { display: none; }
 
