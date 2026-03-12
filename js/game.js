@@ -928,10 +928,15 @@ loadGame();
 scheduleFish();
 renderAll();
 
-// Stats toggle
-document.getElementById('stats-toggle').addEventListener('click', () => {
-  document.getElementById('stats-detail').classList.toggle('collapsed');
-});
+// Settings modal
+function openSettings() {
+  document.getElementById('settings-overlay').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+window.openSettings = openSettings;
+window.closeSettings = closeSettings;
 
 setInterval(gameLoop,   100);   // 10 ticks/sec
 setInterval(saveGame,   30000, true); // auto-save silent

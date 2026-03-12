@@ -59,9 +59,36 @@
       <div id="news-text">Les croquettes tombent du ciel. Les chats s'en réjouissent bruyamment.</div>
     </div>
 
-    <div id="stats-detail" class="collapsed">
-      <button id="stats-toggle" title="Statistiques">📊</button>
-      <div id="stats-rows">
+    <div id="empire-section">
+      <div id="empire-label">🏡 Votre domaine félin</div>
+      <div id="empire-grid"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="saveGame()">💾 Sauvegarder</button>
+      <button class="btn btn-ghost" id="mute-btn" onclick="toggleMute()">🔊 Musique</button>
+      <button class="btn btn-ghost" onclick="resetGame()">🔄 Recommencer</button>
+      <button class="btn-settings" onclick="openSettings()" title="Paramètres">⚙️</button>
+    </div>
+  </div>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <div id="right-panel">
+    <div id="shop-header">🏪 Boutique Féline</div>
+    <div id="shop-intro">
+      Achète des bâtiments pour produire automatiquement des croquettes et débloquer de nouvelles améliorations.
+    </div>
+    <div id="buildings-list"></div>
+  </div>
+
+</div>
+
+<!-- ══ SETTINGS MODAL ══ -->
+<div id="settings-overlay" onclick="closeSettings()">
+  <div id="settings-modal" onclick="event.stopPropagation()">
+    <div id="settings-title">⚙️ Paramètres</div>
+    <div id="settings-section-title">📊 Statistiques</div>
+    <div id="stats-detail">
       <div class="stat-row">
         <span class="stat-label">Croquettes actuelles</span>
         <span class="stat-value" id="stat-current">0</span>
@@ -86,30 +113,9 @@
         <span class="stat-label">Bâtiments possédés</span>
         <span class="stat-value" id="stat-buildings">0</span>
       </div>
-      </div>
     </div>
-
-    <div id="empire-section">
-      <div id="empire-label">🏡 Votre domaine félin</div>
-      <div id="empire-grid"></div>
-    </div>
-
-    <div class="action-row">
-      <button class="btn btn-primary" onclick="saveGame()">💾 Sauvegarder</button>
-      <button class="btn btn-ghost" id="mute-btn" onclick="toggleMute()">🔊 Musique</button>
-      <button class="btn btn-ghost" onclick="resetGame()">🔄 Recommencer</button>
-    </div>
+    <button class="btn btn-ghost" onclick="closeSettings()">Fermer</button>
   </div>
-
-  <!-- ══ RIGHT PANEL ══ -->
-  <div id="right-panel">
-    <div id="shop-header">🏪 Boutique Féline</div>
-    <div id="shop-intro">
-      Achète des bâtiments pour produire automatiquement des croquettes et débloquer de nouvelles améliorations.
-    </div>
-    <div id="buildings-list"></div>
-  </div>
-
 </div>
 
 <script src="js/game.js"></script>
