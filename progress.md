@@ -93,3 +93,12 @@ Original prompt: J'aimerais que tu modifies l'interface et que tu t'inspires exa
   - Run skill Playwright (`web_game_playwright_client.js`) exécuté après modifs; captures/états générés.
   - Vérif fonctionnelle via Playwright MCP: reset état, achat `Patte de velours`, apparition immédiate dans la colonne centrale (`beforeCards=0` -> `afterCards=1`, placeholder caché).
   - Capture viewport de validation montrant les 3 colonnes et l'objet acheté visible au centre.
+- Ajustement "cookie clicker-like" de la colonne droite (demande de ressemblance forte):
+  - Header unique `Boutique`.
+  - Barre bonus en petits carrés (`#bonus-grid`) avec placeholders visuels même avant déblocage.
+  - Bandeau style achat `Acheter/Vendre 1 10 100`.
+  - Liste d'objets achetables conservée juste en dessous.
+- Refactor JS:
+  - `renderUpgrades()` ne rend plus des catégories; il alimente directement la grille de tuiles bonus (`.bonus-tile`).
+  - Ajout de placeholders `.bonus-slot` pour reproduire la structure visuelle de référence.
+  - `rotateNews()`/`loadGame()` sécurisés si `#news-text` absent.

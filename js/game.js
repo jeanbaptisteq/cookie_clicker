@@ -367,56 +367,31 @@ function renderStats() {
 }
 
 function renderUpgrades() {
-  const wrap  = document.getElementById('upgrades-categories');
+  const wrap  = document.getElementById('bonus-grid');
   const empty = document.getElementById('upgrades-empty');
   if (!wrap || !empty) return;
   wrap.innerHTML = '';
-
-  const available = [];
-  ALL_UPGRADES.forEach((upg, idx) => {
-    if (G.upg[idx].bought) return;
-    if (!upg.condition(G))  return;
-    available.push({ upg, idx });
-  });
+  const available = ALL_UPGRADES
+    .map((upg, idx) => ({ upg, idx }))
+    .filter(({ upg, idx }) => !G.upg[idx].bought && upg.condition(G));
+  const placeholderIcons = ['🖐️', '✏️', '🖍️', '☞'];
 
   if (available.length === 0) {
+    placeholderIcons.forEach((icon) => {
+      const slot = document.createElement('div');
+      slot.className = 'bonus-slot';
+      slot.textContent = icon;
+      wrap.appendChild(slot);
+    });
     empty.style.display = 'block';
     return;
   }
-
   empty.style.display = 'none';
 
-  const categoryMap = new Map();
-  const ensureCategory = (key, title) => {
-    if (!categoryMap.has(key)) categoryMap.set(key, { title, items: [] });
-    return categoryMap.get(key);
-  };
-
-  ensureCategory('click', 'Pouvoir du clic');
-  BUILDINGS.forEach((b, i) => ensureCategory('bld_' + i, b.name));
-
   available.forEach(({ upg, idx }) => {
-    const key = typeof upg.bldId === 'number' ? 'bld_' + upg.bldId : 'click';
-    ensureCategory(key, upg.bldId != null ? BUILDINGS[upg.bldId].name : 'Pouvoir du clic').items.push({ upg, idx });
-  });
-
-  categoryMap.forEach((cat) => {
-    if (cat.items.length === 0) return;
-    const sec = document.createElement('section');
-    sec.className = 'upg-category';
-
-    const title = document.createElement('div');
-    title.className = 'upg-title';
-    title.textContent = cat.title;
-    sec.appendChild(title);
-
-    const grid = document.createElement('div');
-    grid.className = 'upg-grid';
-
-    cat.items.forEach(({ upg, idx }) => {
     const canAfford = G.cookies >= upg.cost;
     const btn = document.createElement('div');
-    btn.className = 'upgrade-btn' + (canAfford ? '' : ' cant-afford');
+    btn.className = 'upgrade-btn bonus-tile' + (canAfford ? '' : ' cant-afford');
     btn.dataset.idx = idx;
     btn.innerHTML = `
       <span>${upg.icon}</span>
@@ -430,12 +405,16 @@ function renderUpgrades() {
     btn.addEventListener('click', () => {
       if (G.cookies >= ALL_UPGRADES[idx].cost && !G.upg[idx].bought) buyUpgrade(idx);
     });
-    grid.appendChild(btn);
-    });
-
-    sec.appendChild(grid);
-    wrap.appendChild(sec);
+    wrap.appendChild(btn);
   });
+
+  const pad = Math.max(0, 4 - available.length);
+  for (let i = 0; i < pad; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'bonus-slot';
+    slot.textContent = placeholderIcons[i % placeholderIcons.length];
+    wrap.appendChild(slot);
+  }
 }
 
 function renderBuildings() {
@@ -744,6 +723,7 @@ function checkMilestones() {
 
 function rotateNews() {
   const el = document.getElementById('news-text');
+  if (!el) return;
   el.style.transition = 'opacity 0.5s';
   el.style.opacity    = '0';
   setTimeout(() => {
@@ -791,7 +771,8 @@ function loadGame() {
     });
     G.milestoneIdx = s.milestoneIdx || 0;
     G.newsIdx      = s.newsIdx      || 0;
-    document.getElementById('news-text').textContent = NEWS[G.newsIdx % NEWS.length];
+    const newsEl = document.getElementById('news-text');
+    if (newsEl) newsEl.textContent = NEWS[G.newsIdx % NEWS.length];
   } catch(e) {
     console.error('Erreur de chargement :', e);
   }
